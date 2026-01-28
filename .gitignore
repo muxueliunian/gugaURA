@@ -1,0 +1,15 @@
+/target
+Cargo.lock
+*.pdb
+*.dll
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 配置文件（运行时生成）
+guga_ura_config.json
+guga_ura_data/

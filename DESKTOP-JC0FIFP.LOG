@@ -1,0 +1,552 @@
+00000001	0.00000000	[56464] [0128/083134.513:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\c41dde5d-16ad-4244-8333-db063c77ac99: 系统找不到指定的文件。 (0x2)	
+00000002	0.00032100	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\7b11b4e3-0e9b-4c88-9b1c-4300922b3305: 系统找不到指定的文件。 (0x2)	
+00000003	0.00056910	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\4c9f625f-a3ee-48b1-b73b-05e3cf822a6e: 系统找不到指定的文件。 (0x2)	
+00000004	0.00070900	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\2637dd88-f73a-4ee5-b234-dbe832df4a1b: 系统找不到指定的文件。 (0x2)	
+00000005	0.00092810	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\27f50079-b2e0-4513-83dc-dd3c81370653: 系统找不到指定的文件。 (0x2)	
+00000006	0.00105210	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\17f606f0-d27a-4fd2-be24-1ddd6b2f5266: 系统找不到指定的文件。 (0x2)	
+00000007	0.00114920	[56464] [0128/083134.514:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\65e84849-cc12-4f41-abc3-f98348a9e55c: 系统找不到指定的文件。 (0x2)	
+00000008	0.00125090	[56464] [0128/083134.515:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\073c769a-9a55-4598-95dd-77b156267a0d: 系统找不到指定的文件。 (0x2)	
+00000009	0.00135410	[56464] [0128/083134.515:ERROR:filesystem_win.cc(128)] GetFileAttributes C:\Users\muxueliunian\AppData\Roaming\dmmgameplayer5\Crashpad\attachments\335bb106-702c-420a-8af1-dc636db3e45b: 系统找不到指定的文件。 (0x2)	
+00000010	1.54155040	[41448] Memory Leak Tracking is disabled for this process name	
+00000011	1.62240589	[57696] 01/28/2026 00:31:36 INFO  [cellar::windows::main] Cellar initializing 	
+00000012	1.62263954	[57696] 01/28/2026 00:31:36 INFO  [cellar::windows::hook] Hooking PathFileExistsW 	
+00000013	1.62286925	[57696] 01/28/2026 00:31:36 DEBUG [minhook] MH_Initialize: MH_OK 	
+00000014	1.62316024	[57696] 01/28/2026 00:31:36 DEBUG [minhook] MH_CreateHook: MH_OK 	
+00000015	1.66576278	[57696] 01/28/2026 00:31:36 DEBUG [minhook] MH_EnableHook: MH_OK 	
+00000016	1.66580713	[57696] 01/28/2026 00:31:36 INFO  [cellar::windows::main] Attach completed 	
+00000017	1.88841915	[57696] 01/28/2026 00:31:36 INFO  [cellar::windows::hook] Unhooking PathFileExistsW 	
+00000018	1.92956984	[57696] 01/28/2026 00:31:36 DEBUG [minhook] MH_DisableHook: MH_OK 	
+00000019	1.92958915	[57696] 01/28/2026 00:31:36 DEBUG [minhook] MH_RemoveHook: MH_OK 	
+00000020	2.53332591	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer] GugaURA v0.1.0 loading... 	
+00000021	2.53338122	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::core::anti_cheat] Setting up anti-cheat bypass (PathFileExistsW hook) 	
+00000022	2.53353286	[57696] 01/28/2026 00:31:37 DEBUG [minhook] MH_Initialize: MH_OK 	
+00000023	2.53361392	[57696] 01/28/2026 00:31:37 DEBUG [minhook] MH_CreateHook: MH_OK 	
+00000024	2.57473278	[57696] 01/28/2026 00:31:37 DEBUG [minhook] MH_EnableHook: MH_OK 	
+00000025	2.57475114	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::core::anti_cheat] Anti-cheat bypass installed 	
+00000026	2.57496047	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::core] Config loaded: notifier_host = http://127.0.0.1:4693 	
+00000027	2.57641888	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::core] Setting up UnityPlayer proxy 	
+00000028	2.58146191	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::proxy::unityplayer] UnityPlayer proxy initialized, UnityMain at 0x7FFA45E38690 	
+00000029	2.58149934	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer::core] Hooking LoadLibraryW 	
+00000030	2.58154631	[57696] 01/28/2026 00:31:37 DEBUG [minhook] MH_CreateHook: MH_OK 	
+00000031	2.62207031	[57696] 01/28/2026 00:31:37 DEBUG [minhook] MH_EnableHook: MH_OK 	
+00000032	2.62218285	[57696] 01/28/2026 00:31:37 INFO  [UnityPlayer] GugaURA attached successfully 	
+00000033	8.87954235	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000034	8.87964916	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000035	8.87974930	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000036	8.87977314	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] Game ready, initializing HTTP hooks (first time only) 	
+00000037	8.87980366	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] Initializing IL2CPP symbols... 	
+00000038	8.87982464	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] IL2CPP handle: 0x7FFA20630000 	
+00000039	8.87985992	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols_impl] Parsing symbol map from: "G:\\dmm\\Umamusume\\UnityPlayer.dll" 	
+00000040	8.87999725	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols_impl] Symbol map generated with 234 entries 	
+00000041	8.88005733	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] il2cpp_domain_get at 0x7FFA209E2940 	
+00000042	8.88007450	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] il2cpp_domain_get_assemblies at 0x7FFA209E2AE0 	
+00000043	8.88009071	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] il2cpp_assembly_get_image at 0x7FFA209E2540 	
+00000044	8.88011074	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] IL2CPP domain: 0x2664CD93FC0 	
+00000045	8.98037243	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] Found 109 assemblies in domain 	
+00000046	8.98039150	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols]   Assembly[0]: umamusume.dll 	
+00000047	8.98040771	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::symbols] Found target assembly: umamusume.dll 	
+00000048	8.98043251	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] Found umamusume assembly 	
+00000049	8.98045063	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] Found HttpHelper class 	
+00000050	8.98047733	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] Found CompressRequest at 0x7FFA24969220 	
+00000051	8.98049641	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] Found DecompressResponse at 0x7FFA24969590 	
+00000052	8.98092937	[57696] 01/28/2026 00:31:43 DEBUG [minhook] MH_CreateHook: MH_OK 	
+00000053	9.04096985	[57696] 01/28/2026 00:31:43 DEBUG [minhook] MH_EnableHook: MH_OK 	
+00000054	9.04098701	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] CompressRequest hooked 	
+00000055	9.04131413	[57696] 01/28/2026 00:31:43 DEBUG [minhook] MH_CreateHook: MH_OK 	
+00000056	9.10167789	[57696] 01/28/2026 00:31:43 DEBUG [minhook] MH_EnableHook: MH_OK 	
+00000057	9.10189152	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] DecompressResponse hooked 	
+00000058	9.10196304	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp::http_hook] HTTP hooks installed successfully! 	
+00000059	9.10199451	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] HTTP hooks installed successfully! 	
+00000060	9.10261726	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000061	9.10285187	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000062	9.10297775	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000063	9.10363388	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000064	9.10379887	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000065	9.10383320	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000066	9.10398674	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000067	9.10400486	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000068	9.10410309	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000069	9.10416317	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000070	9.10418701	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000071	9.10422897	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000072	9.18150520	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000073	9.18226814	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000074	9.18285561	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000075	9.18319893	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000076	9.18348885	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000077	9.18369102	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000078	9.18373299	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000079	9.18388844	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000080	9.18403721	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000081	9.18406105	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000082	9.18419647	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000083	9.18440914	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000084	9.18458843	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000085	9.18478584	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000086	9.18491745	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000087	9.18493557	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000088	9.18507767	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000089	9.18514347	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000090	9.18515968	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000091	9.18529129	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000092	9.18531418	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000093	9.18546581	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000094	9.18548012	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000095	9.18550587	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000096	9.18565369	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000097	9.18567085	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000098	9.18569851	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000099	9.18583775	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000100	9.18585205	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000101	9.18587780	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000102	9.25071907	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000103	9.25075340	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000104	9.25076199	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000105	9.25131321	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000106	9.25136185	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000107	9.25138760	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000108	9.25146389	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000109	9.25150490	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000110	9.25151443	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000111	9.27556515	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000112	9.27569771	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000113	9.27573299	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000114	9.27587223	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000115	9.27591324	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000116	9.27592468	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000117	9.27597713	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000118	9.27601051	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000119	9.27603531	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000120	9.27607632	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000121	9.27610779	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000122	9.27613926	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000123	9.27625084	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000124	9.27627087	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000125	9.27637768	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000126	9.27639198	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000127	9.27648067	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000128	9.27651882	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000129	9.27668381	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000130	9.27685452	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000131	9.27696037	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000132	9.27792358	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000133	9.27795887	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000134	9.27802277	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000135	9.27811432	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000136	9.27818012	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000137	9.27821159	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000138	9.27829075	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000139	9.27830791	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000140	9.27843761	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000141	9.27847767	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000142	9.27851486	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000143	9.27852917	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000144	9.27859497	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000145	9.27863026	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000146	9.27864552	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000147	9.27870274	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000148	9.27873802	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000149	9.27875233	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000150	9.36251163	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000151	9.36253738	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000152	9.36264038	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000153	9.36265373	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000154	9.36275768	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000155	9.36277485	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000156	9.36761951	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000157	9.36765194	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000158	9.36779594	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000159	9.36782837	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000160	9.36787319	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000161	9.36789989	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000162	9.36870861	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000163	9.36874580	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000164	9.36888504	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000165	9.36905479	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000166	9.36912155	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000167	9.36915112	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000168	9.36921883	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000169	9.36930370	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000170	9.36935329	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000171	9.36948967	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000172	9.36954117	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000173	9.36956596	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000174	9.36982632	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000175	9.36986256	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000176	9.36987782	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000177	9.37210464	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000178	9.37212086	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000179	9.37224293	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000180	9.37228489	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000181	9.37238121	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000182	9.37241077	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000183	9.37251568	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000184	9.37255573	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000185	9.37257099	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000186	9.39059162	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000187	9.39062023	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000188	9.39072132	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000189	9.39076614	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000190	9.39078236	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000191	9.39079475	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000192	9.39085007	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000193	9.39089108	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000194	9.39090538	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000195	9.39095306	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000196	9.39098358	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000197	9.39099884	[57696] 01/28/2026 00:31:43 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000198	9.60392761	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000199	9.60395527	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000200	9.60402870	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000201	9.69056606	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000202	9.69059753	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000203	9.69062805	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000204	9.69078922	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000205	9.69081879	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000206	9.69093800	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000207	9.69179058	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000208	9.69184208	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000209	9.69187164	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000210	9.69203854	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000211	9.69209099	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000212	9.69210052	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000213	9.69225407	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000214	9.69237041	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000215	9.69253254	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000216	9.69268513	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000217	9.69270992	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000218	9.69285965	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000219	9.69312286	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000220	9.69318771	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000221	9.69322491	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000222	9.69335938	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000223	9.69337559	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000224	9.69340515	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000225	9.69393635	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000226	9.69399643	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000227	9.69400787	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000228	9.69564056	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000229	9.69566822	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000230	9.69569778	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000231	9.69579220	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000232	9.69580841	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000233	9.69583607	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000234	9.71286869	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000235	9.71291924	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000236	9.71293640	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000237	9.71304417	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000238	9.71307087	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000239	9.71309948	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000240	9.73927879	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000241	9.73934555	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000242	9.73936367	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000243	9.73983955	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000244	9.73989487	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000245	9.73992443	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000246	9.74000835	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000247	9.74004841	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000248	9.74006271	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000249	9.74011803	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000250	9.74015236	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000251	9.74016762	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000252	9.77311325	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000253	9.77322865	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000254	9.77325153	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000255	9.77338028	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000256	9.77339554	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000257	9.77342033	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000258	9.77351570	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000259	9.77353191	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000260	9.77355766	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000261	9.80602837	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000262	9.80605793	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000263	9.80617142	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000264	9.80667877	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000265	9.80681324	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000266	9.80685043	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000267	9.80732632	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000268	9.80736923	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000269	9.80740356	[57696] 01/28/2026 00:31:44 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000270	14.32645416	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000271	14.32663155	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000272	14.32664776	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000273	14.32675648	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000274	14.32688999	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000275	14.32691956	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000276	14.32704353	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000277	14.32706547	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000278	14.32707405	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000279	14.32751846	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000280	14.32757092	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000281	14.32758045	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000282	14.36043072	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000283	14.36049557	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000284	14.36052608	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000285	14.36085606	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000286	14.36087799	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000287	14.36089134	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000288	14.37562084	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000289	14.37565422	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000290	14.37576962	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000291	14.37588978	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000292	14.37592030	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000293	14.37602901	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000294	14.41637897	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000295	14.41646099	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000296	14.41648960	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000297	14.41667652	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000298	14.41680145	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000299	14.41694736	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000300	14.41706848	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000301	14.41719341	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000302	14.41732597	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000303	14.41743851	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000304	14.41752625	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000305	14.41756439	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000306	14.41765118	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000307	14.41769123	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000308	14.41771030	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000309	14.41781902	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000310	14.41794586	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000311	14.41800976	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000312	14.41808987	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000313	14.41812992	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000314	14.41814232	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000315	14.41819191	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000316	14.41822243	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000317	14.41823673	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000318	14.41831398	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000319	14.41836166	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000320	14.41841412	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000321	14.41854763	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000322	14.41871643	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000323	14.41877079	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000324	14.41882420	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000325	14.41886044	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000326	14.41887665	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000327	14.41894436	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000328	14.41896820	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000329	14.41898060	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000330	14.41902447	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000331	14.41907883	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000332	14.41910553	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000333	14.41914558	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000334	14.41917419	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000335	14.41918755	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000336	14.41923523	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000337	14.41926098	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000338	14.41926765	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000339	14.41931343	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000340	14.41933918	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000341	14.41935062	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000342	14.41939163	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000343	14.41941929	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000344	14.41943169	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000345	14.41948509	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000346	14.41950703	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000347	14.41952515	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000348	14.41957474	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000349	14.41960335	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000350	14.41961765	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000351	14.41965961	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000352	14.41968822	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000353	14.41970062	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000354	14.41975403	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000355	14.41978264	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000356	14.41979504	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000357	14.42002583	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000358	14.42004490	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000359	14.42007351	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000360	14.43786526	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000361	14.43791199	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000362	14.43792629	[57696] 01/28/2026 00:31:48 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000363	14.78995991	[57696] 01/28/2026 00:31:49 INFO  [UnityPlayer::core] Sending request data (435 bytes) to http://127.0.0.1:4693/notify/request 	
+00000364	14.79043961	[57696] 01/28/2026 00:31:49 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000365	14.79185104	[57696] 01/28/2026 00:31:49 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56206, peer: 127.0.0.1:4693, socket: 8024 }) 	
+00000366	14.79196835	[57696] 01/28/2026 00:31:49 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000367	14.79199314	[57696] 01/28/2026 00:31:49 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000368	14.79199314	[57696] Host: 127.0.0.1:4693 	
+00000369	14.79199314	[57696] User-Agent: ureq/2.12.1 	
+00000370	14.79199314	[57696] Accept: */* 	
+00000371	14.79199314	[57696] accept-encoding: gzip 	
+00000372	14.79199314	[57696] Content-Length: 435 	
+00000373	14.84176350	[57696] 01/28/2026 00:31:49 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000374	14.84180641	[57696] 01/28/2026 00:31:49 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56206, peer: 127.0.0.1:4693, socket: 8024 }) 	
+00000375	14.84191799	[57696] 01/28/2026 00:31:49 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000376	15.62896156	[57696] 01/28/2026 00:31:50 INFO  [UnityPlayer::core] Sending response data (526 bytes) to http://127.0.0.1:4693/notify/response 	
+00000377	15.62923717	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000378	15.62973118	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56209, peer: 127.0.0.1:4693, socket: 8100 }) 	
+00000379	15.62989235	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000380	15.63000011	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000381	15.63000011	[57696] Host: 127.0.0.1:4693 	
+00000382	15.63000011	[57696] User-Agent: ureq/2.12.1 	
+00000383	15.63000011	[57696] Accept: */* 	
+00000384	15.63000011	[57696] accept-encoding: gzip 	
+00000385	15.63000011	[57696] Content-Length: 526 	
+00000386	15.63306713	[57696] 01/28/2026 00:31:50 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000387	15.63308144	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56209, peer: 127.0.0.1:4693, socket: 8100 }) 	
+00000388	15.63320351	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	
+00000389	15.86162758	[57696] 01/28/2026 00:31:50 INFO  [UnityPlayer::core] Sending request data (423 bytes) to http://127.0.0.1:4693/notify/request 	
+00000390	15.86195564	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000391	15.87362099	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56210, peer: 127.0.0.1:4693, socket: 8004 }) 	
+00000392	15.87379169	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000393	15.87381554	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000394	15.87381554	[57696] Host: 127.0.0.1:4693 	
+00000395	15.87381554	[57696] User-Agent: ureq/2.12.1 	
+00000396	15.87381554	[57696] Accept: */* 	
+00000397	15.87381554	[57696] accept-encoding: gzip 	
+00000398	15.87381554	[57696] Content-Length: 423 	
+00000399	15.87804985	[57696] 01/28/2026 00:31:50 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000400	15.87808800	[57696] 01/28/2026 00:31:50 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56210, peer: 127.0.0.1:4693, socket: 8004 }) 	
+00000401	15.87827015	[57696] 01/28/2026 00:31:50 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000402	16.25564575	[57696] 01/28/2026 00:31:50 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000403	16.25570869	[57696] 01/28/2026 00:31:50 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000404	16.25575447	[57696] 01/28/2026 00:31:50 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000405	16.86376572	[57696] 01/28/2026 00:31:51 INFO  [UnityPlayer::core] Sending response data (3519328 bytes) to http://127.0.0.1:4693/notify/response 	
+00000406	16.86467552	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000407	16.86501884	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56223, peer: 127.0.0.1:4693, socket: 7996 }) 	
+00000408	16.86515999	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000409	16.86523438	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000410	16.86523438	[57696] Host: 127.0.0.1:4693 	
+00000411	16.86523438	[57696] User-Agent: ureq/2.12.1 	
+00000412	16.86523438	[57696] Accept: */* 	
+00000413	16.86523438	[57696] accept-encoding: gzip 	
+00000414	16.86523438	[57696] Content-Length: 3519328 	
+00000415	16.87819672	[57696] 01/28/2026 00:31:51 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000416	16.87822151	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56223, peer: 127.0.0.1:4693, socket: 7996 }) 	
+00000417	16.87833214	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	
+00000418	17.43663597	[57696] 01/28/2026 00:31:51 INFO  [UnityPlayer::core] Sending request data (4857 bytes) to http://127.0.0.1:4693/notify/request 	
+00000419	17.43691444	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000420	17.43738747	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56224, peer: 127.0.0.1:4693, socket: 8140 }) 	
+00000421	17.43743324	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000422	17.43744659	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000423	17.43744659	[57696] Host: 127.0.0.1:4693 	
+00000424	17.43744659	[57696] User-Agent: ureq/2.12.1 	
+00000425	17.43744659	[57696] Accept: */* 	
+00000426	17.43744659	[57696] accept-encoding: gzip 	
+00000427	17.43744659	[57696] Content-Length: 4857 	
+00000428	17.47877693	[57696] 01/28/2026 00:31:51 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000429	17.47888565	[57696] 01/28/2026 00:31:51 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56224, peer: 127.0.0.1:4693, socket: 8140 }) 	
+00000430	17.47899818	[57696] 01/28/2026 00:31:51 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000431	17.74073982	[57696] 01/28/2026 00:31:52 INFO  [UnityPlayer::core] Sending response data (387 bytes) to http://127.0.0.1:4693/notify/response 	
+00000432	17.74103928	[57696] 01/28/2026 00:31:52 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000433	17.74133301	[57696] 01/28/2026 00:31:52 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56231, peer: 127.0.0.1:4693, socket: 7448 }) 	
+00000434	17.74135590	[57696] 01/28/2026 00:31:52 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000435	17.74137688	[57696] 01/28/2026 00:31:52 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000436	17.74137688	[57696] Host: 127.0.0.1:4693 	
+00000437	17.74137688	[57696] User-Agent: ureq/2.12.1 	
+00000438	17.74137688	[57696] Accept: */* 	
+00000439	17.74137688	[57696] accept-encoding: gzip 	
+00000440	17.74137688	[57696] Content-Length: 387 	
+00000441	17.74370575	[57696] 01/28/2026 00:31:52 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000442	17.74373055	[57696] 01/28/2026 00:31:52 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56231, peer: 127.0.0.1:4693, socket: 7448 }) 	
+00000443	17.74381828	[57696] 01/28/2026 00:31:52 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	
+00000444	19.04657745	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000445	19.04661751	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000446	19.04667091	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000447	19.04686737	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000448	19.04690742	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000449	19.04692078	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000450	19.06278992	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000451	19.06294441	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000452	19.06296539	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000453	19.06311989	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000454	19.06314278	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000455	19.06316566	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000456	19.06322289	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000457	19.06325722	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000458	19.06327248	[57696] 01/28/2026 00:31:53 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000459	20.29600334	[61768] clean http source:0!	
+00000460	20.29901695	[61768] create http  source:0!	
+00000461	20.64246178	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core] Sending request data (415 bytes) to http://127.0.0.1:4693/notify/request 	
+00000462	20.64275360	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000463	20.65245819	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56257, peer: 127.0.0.1:4693, socket: 12980 }) 	
+00000464	20.65248680	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000465	20.65253639	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000466	20.65253639	[57696] Host: 127.0.0.1:4693 	
+00000467	20.65253639	[57696] User-Agent: ureq/2.12.1 	
+00000468	20.65253639	[57696] Accept: */* 	
+00000469	20.65253639	[57696] accept-encoding: gzip 	
+00000470	20.65253639	[57696] Content-Length: 415 	
+00000471	20.65557098	[57696] 01/28/2026 00:31:55 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000472	20.65564346	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56257, peer: 127.0.0.1:4693, socket: 12980 }) 	
+00000473	20.65578651	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000474	20.88539505	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core] Sending response data (21479 bytes) to http://127.0.0.1:4693/notify/response 	
+00000475	20.88576889	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000476	20.88640785	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56258, peer: 127.0.0.1:4693, socket: 12952 }) 	
+00000477	20.88651848	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000478	20.88657379	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000479	20.88657379	[57696] Host: 127.0.0.1:4693 	
+00000480	20.88657379	[57696] User-Agent: ureq/2.12.1 	
+00000481	20.88657379	[57696] Accept: */* 	
+00000482	20.88657379	[57696] accept-encoding: gzip 	
+00000483	20.88657379	[57696] Content-Length: 21479 	
+00000484	20.88935280	[57696] 01/28/2026 00:31:55 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000485	20.88937378	[57696] 01/28/2026 00:31:55 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56258, peer: 127.0.0.1:4693, socket: 12952 }) 	
+00000486	20.88949394	[57696] 01/28/2026 00:31:55 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	
+00000487	20.97400093	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000488	20.97404099	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000489	20.97414207	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000490	20.97441673	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000491	20.97443771	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000492	20.97446632	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000493	20.98884201	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000494	20.98886681	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000495	20.98887825	[57696] 01/28/2026 00:31:55 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000496	24.00517464	[61768] clean http source:0!	
+00000497	24.00844765	[61768] create http  source:0!	
+00000498	24.90241814	[57696] 01/28/2026 00:31:59 INFO  [UnityPlayer::core] Sending request data (415 bytes) to http://127.0.0.1:4693/notify/request 	
+00000499	24.90272522	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000500	24.91200066	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56275, peer: 127.0.0.1:4693, socket: 13920 }) 	
+00000501	24.91203117	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000502	24.91205597	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000503	24.91205597	[57696] Host: 127.0.0.1:4693 	
+00000504	24.91205597	[57696] User-Agent: ureq/2.12.1 	
+00000505	24.91205597	[57696] Accept: */* 	
+00000506	24.91205597	[57696] accept-encoding: gzip 	
+00000507	24.91205597	[57696] Content-Length: 415 	
+00000508	24.91445351	[57696] 01/28/2026 00:31:59 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000509	24.91448402	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56275, peer: 127.0.0.1:4693, socket: 13920 }) 	
+00000510	24.91458511	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000511	25.00909233	[57696] 01/28/2026 00:31:59 INFO  [UnityPlayer::core::interceptor] CriWare library loaded, game ready 	
+00000512	25.00911713	[57696] 01/28/2026 00:31:59 INFO  [UnityPlayer::core] GameAssembly.dll loaded at 0x7FFA20630000 	
+00000513	25.00916672	[57696] 01/28/2026 00:31:59 INFO  [UnityPlayer::il2cpp] IL2CPP handle set to 0x7FFA20630000 	
+00000514	25.05978394	[57696] 01/28/2026 00:31:59 INFO  [UnityPlayer::core] Sending response data (809 bytes) to http://127.0.0.1:4693/notify/response 	
+00000515	25.06014442	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000516	25.06044579	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56276, peer: 127.0.0.1:4693, socket: 13108 }) 	
+00000517	25.06046677	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000518	25.06058502	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000519	25.06058502	[57696] Host: 127.0.0.1:4693 	
+00000520	25.06058502	[57696] User-Agent: ureq/2.12.1 	
+00000521	25.06058502	[57696] Accept: */* 	
+00000522	25.06058502	[57696] accept-encoding: gzip 	
+00000523	25.06058502	[57696] Content-Length: 809 	
+00000524	25.08395004	[57696] 01/28/2026 00:31:59 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000525	25.08398438	[57696] 01/28/2026 00:31:59 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56276, peer: 127.0.0.1:4693, socket: 13108 }) 	
+00000526	25.08412552	[57696] 01/28/2026 00:31:59 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	
+00000527	27.53352547	[57696] 01/28/2026 00:32:02 INFO  [UnityPlayer::core] Sending request data (436 bytes) to http://127.0.0.1:4693/notify/request 	
+00000528	27.53377914	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000529	27.54553604	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56281, peer: 127.0.0.1:4693, socket: 11256 }) 	
+00000530	27.54561615	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/request 	
+00000531	27.54562950	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] writing prelude: POST /notify/request HTTP/1.1 	
+00000532	27.54562950	[57696] Host: 127.0.0.1:4693 	
+00000533	27.54562950	[57696] User-Agent: ureq/2.12.1 	
+00000534	27.54562950	[57696] Accept: */* 	
+00000535	27.54562950	[57696] accept-encoding: gzip 	
+00000536	27.54562950	[57696] Content-Length: 436 	
+00000537	27.54759979	[57696] 01/28/2026 00:32:02 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000538	27.54762268	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56281, peer: 127.0.0.1:4693, socket: 11256 }) 	
+00000539	27.54774475	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/request 	
+00000540	27.92698479	[57696] 01/28/2026 00:32:02 INFO  [UnityPlayer::core] Sending response data (230265 bytes) to http://127.0.0.1:4693/notify/response 	
+00000541	27.92729950	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] connecting to 127.0.0.1:4693 at 127.0.0.1:4693 	
+00000542	27.92765045	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] created stream: Stream(TcpStream { addr: 127.0.0.1:56282, peer: 127.0.0.1:4693, socket: 14112 }) 	
+00000543	27.92767715	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] sending request POST http://127.0.0.1:4693/notify/response 	
+00000544	27.92770004	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] writing prelude: POST /notify/response HTTP/1.1 	
+00000545	27.92770004	[57696] Host: 127.0.0.1:4693 	
+00000546	27.92770004	[57696] User-Agent: ureq/2.12.1 	
+00000547	27.92770004	[57696] Accept: */* 	
+00000548	27.92770004	[57696] accept-encoding: gzip 	
+00000549	27.92770004	[57696] Content-Length: 230265 	
+00000550	27.92895317	[57696] 01/28/2026 00:32:02 DEBUG [ureq::response] zero-length body returning stream directly to pool 	
+00000551	27.92898178	[57696] 01/28/2026 00:32:02 DEBUG [ureq::stream] dropping stream: Stream(TcpStream { addr: 127.0.0.1:56282, peer: 127.0.0.1:4693, socket: 14112 }) 	
+00000552	27.92910767	[57696] 01/28/2026 00:32:02 DEBUG [ureq::unit] response 200 to POST http://127.0.0.1:4693/notify/response 	

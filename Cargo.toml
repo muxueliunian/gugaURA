@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["guga_ura", "cellar"]
+
+[profile.release]
+strip = true
+lto = true
+opt-level = "z"

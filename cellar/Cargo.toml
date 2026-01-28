@@ -1,0 +1,21 @@
+[package]
+name = "cellar"
+version = "2.0.0"
+edition = "2021"
+description = "Anti-detection bypass for Uma Musume"
+
+[lib]
+name = "apphelp"
+crate-type = ["cdylib"]
+
+[dependencies]
+log = "0.4"
+widestring = "1.1"
+windebug_logger = "0.1"
+minhook = "0.5"
+
+[dependencies.windows]
+version = "0.60"
+features = [
+    "Win32_Storage_FileSystem"
+]
