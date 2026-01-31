@@ -1,2 +1,8 @@
 EXPORTS
+    ; UnityPlayer.dll (DMM 版)
     UnityMain
+
+    ; cri_mana_vpx.dll (Steam 版)
+    criVvp9_GetAlphaInterface
+    criVvp9_GetInterface
+    criVvp9_SetUserAllocator

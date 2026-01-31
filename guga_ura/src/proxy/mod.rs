@@ -1,6 +1,7 @@
 //! DLL代理模块
 
 pub mod unityplayer;
+pub mod cri_mana_vpx;
 
 /// 代理函数声明宏
 /// 生成一个跳转到原始函数的导出函数

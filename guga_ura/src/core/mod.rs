@@ -59,20 +59,50 @@ impl GugaURA {
             if !handle.is_invalid() {
                 info!("Late loading detected, GameAssembly already loaded");
                 il2cpp::set_handle(handle.0 as usize);
+                
+                // Steam 版晚加载：初始化 cri_mana_vpx 代理
+                info!("Init cri_mana_vpx proxy (late loading)");
+                if let Err(e) = proxy::cri_mana_vpx::init() {
+                    warn!("cri_mana_vpx proxy init failed: {}", e);
+                }
+                
                 // 延迟初始化HTTP hooks
                 Self::try_init_http_hooks();
                 return Ok(());
             }
         }
         
-        // 正常流程：代理 UnityPlayer.dll 并 Hook LoadLibraryW
-        info!("Setting up UnityPlayer proxy");
-        proxy::unityplayer::init()?;
+        // 正常流程：判断是 Steam 版还是 DMM 版
+        let is_steam = Self::is_steam_release();
+        info!("Game version: {}", if is_steam { "Steam" } else { "DMM" });
+        
+        if is_steam {
+            // Steam 版：我们的 DLL 替换了 cri_mana_vpx.dll，需要初始化代理
+            info!("Setting up cri_mana_vpx proxy (Steam)");
+            proxy::cri_mana_vpx::init()?;
+        } else {
+            // DMM 版：代理 UnityPlayer.dll
+            info!("Setting up UnityPlayer proxy (DMM)");
+            proxy::unityplayer::init()?;
+        }
         
         info!("Hooking LoadLibraryW");
         instance.interceptor.hook_load_library()?;
         
         Ok(())
+    }
+    
+    /// 判断是否是 Steam 版
+    /// 只有日本 Steam 版使用 umamusumeprettyderby_jpn.exe
+    fn is_steam_release() -> bool {
+        let exec_path = std::env::current_exe().unwrap_or_default();
+        let file_name = exec_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("");
+        
+        // 只有日本 Steam 版使用这个可执行文件名
+        file_name.eq_ignore_ascii_case("umamusumeprettyderby_jpn")
     }
     
     /// 当 GameAssembly.dll 加载后调用
@@ -95,11 +125,19 @@ impl GugaURA {
     
     /// 尝试初始化HTTP hooks
     fn try_init_http_hooks() {
+        let instance = Self::instance();
+        
         // 初始化IL2CPP符号
         il2cpp::init();
         
         // 添加延迟，让IL2CPP完全初始化
         std::thread::sleep(std::time::Duration::from_millis(100));
+        
+        // 初始化帧数限制Hook
+        il2cpp::fps_hook::init(
+            instance.config.target_fps,
+            instance.config.vsync_count,
+        );
         
         // Hook HTTP请求/响应
         if let Err(e) = il2cpp::http_hook::init() {

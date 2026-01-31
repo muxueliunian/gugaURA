@@ -13,6 +13,7 @@ type Il2cppAssemblyGetImage = extern "C" fn(assembly: *mut c_void) -> *const Il2
 type Il2cppImageGetName = extern "C" fn(image: *const Il2CppImage) -> *const i8;
 type Il2cppClassFromName = extern "C" fn(image: *const Il2CppImage, namespace: *const i8, name: *const i8) -> *mut Il2CppClass;
 type Il2cppClassGetMethodFromName = extern "C" fn(klass: *mut Il2CppClass, name: *const i8, args_count: i32) -> *const MethodInfo;
+type Il2cppResolveIcall = extern "C" fn(name: *const i8) -> usize;
 
 // IL2CPP API函数指针
 static mut IL2CPP_DOMAIN_GET: Option<Il2cppDomainGet> = None;
@@ -21,6 +22,7 @@ static mut IL2CPP_ASSEMBLY_GET_IMAGE: Option<Il2cppAssemblyGetImage> = None;
 static mut IL2CPP_IMAGE_GET_NAME: Option<Il2cppImageGetName> = None;
 static mut IL2CPP_CLASS_FROM_NAME: Option<Il2cppClassFromName> = None;
 static mut IL2CPP_CLASS_GET_METHOD_FROM_NAME: Option<Il2cppClassGetMethodFromName> = None;
+static mut IL2CPP_RESOLVE_ICALL: Option<Il2cppResolveIcall> = None;
 
 static mut DOMAIN: *mut Il2CppDomain = std::ptr::null_mut();
 
@@ -73,6 +75,15 @@ pub fn init() {
             if DOMAIN.is_null() {
                 error!("IL2CPP domain is NULL! Runtime may not be initialized yet.");
             }
+        }
+        
+        // 初始化 il2cpp_resolve_icall
+        let resolve_icall_addr = dlsym("il2cpp_resolve_icall");
+        if resolve_icall_addr != 0 {
+            IL2CPP_RESOLVE_ICALL = Some(std::mem::transmute(resolve_icall_addr));
+            info!("il2cpp_resolve_icall at 0x{:X}", resolve_icall_addr);
+        } else {
+            warn!("Failed to get il2cpp_resolve_icall address");
         }
     }
 }
@@ -152,6 +163,24 @@ pub fn get_method_addr(klass: *mut Il2CppClass, name: &str, args_count: i32) -> 
             None
         } else {
             Some((*method).method_ptr as usize)
+        }
+    }
+}
+
+/// 解析Unity内部调用
+/// 例如: "UnityEngine.Application::set_targetFrameRate(System.Int32)"
+pub fn il2cpp_resolve_icall(name: &str) -> Option<usize> {
+    unsafe {
+        let resolve_icall = IL2CPP_RESOLVE_ICALL?;
+        let name_cstr = std::ffi::CString::new(name).ok()?;
+        let addr = resolve_icall(name_cstr.as_ptr());
+        
+        if addr == 0 {
+            warn!("Failed to resolve icall: {}", name);
+            None
+        } else {
+            info!("Resolved icall {} at 0x{:X}", name, addr);
+            Some(addr)
         }
     }
 }

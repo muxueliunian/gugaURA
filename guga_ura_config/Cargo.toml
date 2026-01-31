@@ -1,0 +1,22 @@
+[package]
+name = "guga_ura_config"
+version = "0.2.0"
+edition = "2021"
+description = "GugaURA Configuration Tool"
+
+[[bin]]
+name = "GugaURA_Config"
+path = "src/main.rs"
+
+[features]
+default = ["embed_dlls"]
+embed_dlls = []
+
+[dependencies]
+eframe = "0.31"
+rfd = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"

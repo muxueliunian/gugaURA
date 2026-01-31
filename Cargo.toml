@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["guga_ura", "cellar"]
+members = ["guga_ura", "cellar", "guga_ura_config"]
 
 [profile.release]
 strip = true

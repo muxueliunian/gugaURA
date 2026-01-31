@@ -1,8 +1,8 @@
-//! 配置管理
+//! 配置结构
 
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// 配置结构
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,48 +41,33 @@ impl Config {
         -1  // -1 表示使用游戏默认
     }
     
-    /// 获取配置文件路径
-    fn config_path() -> PathBuf {
-        // 配置文件放在DLL同目录下
-        let mut path = std::env::current_exe().unwrap_or_default();
-        path.pop();
-        path.push("guga_ura_config.json");
-        path
+    /// 获取配置文件路径（相对于游戏目录）
+    pub fn config_path(game_dir: &Path) -> PathBuf {
+        game_dir.join("guga_ura_config.json")
     }
     
-    /// 加载配置
-    pub fn load() -> Config {
-        let path = Self::config_path();
+    /// 从游戏目录加载配置
+    pub fn load_from(game_dir: &Path) -> Config {
+        let path = Self::config_path(game_dir);
         
         if path.exists() {
-            match fs::read_to_string(&path) {
-                Ok(content) => {
-                    match serde_json::from_str(&content) {
-                        Ok(config) => return config,
-                        Err(e) => {
-                            warn!("Failed to parse config: {}", e);
-                        }
-                    }
-                }
-                Err(e) => {
-                    warn!("Failed to read config: {}", e);
+            if let Ok(content) = fs::read_to_string(&path) {
+                if let Ok(config) = serde_json::from_str(&content) {
+                    return config;
                 }
             }
         }
         
-        // 使用默认配置并保存
-        let config = Config::default();
-        let _ = config.save();
-        config
+        Config::default()
     }
     
-    /// 保存配置
-    pub fn save(&self) -> Result<(), String> {
-        let path = Self::config_path();
+    /// 保存配置到游戏目录
+    pub fn save_to(&self, game_dir: &Path) -> Result<(), String> {
+        let path = Self::config_path(game_dir);
         let json = serde_json::to_string_pretty(self)
-            .map_err(|e| format!("Serialize error: {}", e))?;
+            .map_err(|e| format!("序列化错误: {}", e))?;
         fs::write(&path, json)
-            .map_err(|e| format!("Write error: {}", e))?;
+            .map_err(|e| format!("写入错误: {}", e))?;
         Ok(())
     }
 }

@@ -4,6 +4,7 @@ pub mod types;
 mod symbols_impl;
 pub mod symbols;
 pub mod http_hook;
+pub mod fps_hook;
 
 use std::ptr::null_mut;
 use std::os::raw::c_void;
