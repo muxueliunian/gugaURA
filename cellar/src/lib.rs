@@ -4,7 +4,8 @@
 //! 原始项目: https://github.com/Hachimi-Hachimi/Cellar
 //! 许可证: GPL-3.0
 
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
 pub mod core;
 

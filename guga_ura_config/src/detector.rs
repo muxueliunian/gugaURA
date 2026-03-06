@@ -18,20 +18,20 @@ impl GameVersion {
             GameVersion::Unknown => "未知版本",
         }
     }
-    
+
     /// 获取需要代理的 DLL 名称
     pub fn proxy_dll_name(&self) -> &'static str {
         match self {
-            GameVersion::Steam => "winhttp.dll",
+            GameVersion::Steam => "cri_mana_vpx.dll",
             GameVersion::DMM => "UnityPlayer.dll",
             GameVersion::Unknown => "",
         }
     }
-    
+
     /// 获取原始 DLL 备份名称
     pub fn backup_dll_name(&self) -> &'static str {
         match self {
-            GameVersion::Steam => "winhttp_orig.dll",
+            GameVersion::Steam => "cri_mana_vpx_orig.dll",
             GameVersion::DMM => "UnityPlayer_orig.dll",
             GameVersion::Unknown => "",
         }
@@ -64,25 +64,25 @@ pub fn detect_game_version(game_dir: &Path) -> GameVersion {
     if !is_valid_game_dir(game_dir) {
         return GameVersion::Unknown;
     }
-    
+
     // Steam 版特征：存在 steam_api64.dll
     if game_dir.join("steam_api64.dll").exists() {
         return GameVersion::Steam;
     }
-    
+
     // 检查路径是否包含 Steam 特征
     let path_str = game_dir.to_string_lossy().to_lowercase();
     if path_str.contains("steamapps") || path_str.contains("steamlibrary") {
         return GameVersion::Steam;
     }
-    
+
     // 检查可执行文件名特征
     for exe_name in GAME_EXE_NAMES {
         if exe_name.to_lowercase().contains("jpn") && game_dir.join(exe_name).exists() {
             return GameVersion::Steam;
         }
     }
-    
+
     // 默认认为是 DMM 版
     GameVersion::DMM
 }
@@ -92,14 +92,14 @@ pub fn is_valid_game_dir(game_dir: &Path) -> bool {
     if !game_dir.exists() || !game_dir.is_dir() {
         return false;
     }
-    
+
     // 检查任一已知的可执行文件是否存在
     for exe_name in GAME_EXE_NAMES {
         if game_dir.join(exe_name).exists() {
             return true;
         }
     }
-    
+
     // 额外检查：遍历目录查找包含 umamusume 的可执行文件
     if let Ok(entries) = std::fs::read_dir(game_dir) {
         for entry in entries.filter_map(Result::ok) {
@@ -109,10 +109,9 @@ pub fn is_valid_game_dir(game_dir: &Path) -> bool {
             }
         }
     }
-    
+
     false
 }
-
 
 /// 辅助函数：添加游戏到列表（去重）
 fn add_game_if_new(games: &mut Vec<DetectedGame>, path: PathBuf, version: GameVersion) {
@@ -121,7 +120,7 @@ fn add_game_if_new(games: &mut Vec<DetectedGame>, path: PathBuf, version: GameVe
     let is_duplicate = games.iter().any(|g: &DetectedGame| {
         g.path.to_string_lossy().to_lowercase().replace("/", "\\") == normalized
     });
-    
+
     if !is_duplicate && is_valid_game_dir(&path) {
         games.push(DetectedGame { path, version });
     }
@@ -130,21 +129,21 @@ fn add_game_if_new(games: &mut Vec<DetectedGame>, path: PathBuf, version: GameVe
 /// 自动扫描并检测所有已安装的游戏
 pub fn scan_installed_games() -> Vec<DetectedGame> {
     let mut games = Vec::new();
-    
+
     // 扫描 Steam 安装路径
     if let Some(steam_games) = scan_steam_games() {
         for game in steam_games {
             add_game_if_new(&mut games, game.path, game.version);
         }
     }
-    
+
     // 扫描 DMM 和注册表路径
     if let Some(dmm_games) = scan_dmm_games() {
         for game in dmm_games {
             add_game_if_new(&mut games, game.path, game.version);
         }
     }
-    
+
     // 扫描其他常见路径
     let common_paths = [
         "C:\\Games\\umamusume",
@@ -154,7 +153,7 @@ pub fn scan_installed_games() -> Vec<DetectedGame> {
         "C:\\Program Files\\umamusume",
         "D:\\Program Files\\umamusume",
     ];
-    
+
     for path in common_paths {
         let path = PathBuf::from(path);
         if is_valid_game_dir(&path) {
@@ -162,7 +161,7 @@ pub fn scan_installed_games() -> Vec<DetectedGame> {
             add_game_if_new(&mut games, path, version);
         }
     }
-    
+
     games
 }
 
@@ -180,7 +179,7 @@ fn find_game_in_steam_library(lib_path: &Path, games: &mut Vec<DetectedGame>) {
     if !common_dir.exists() {
         return;
     }
-    
+
     // 首先尝试已知的目录名
     for dir_name in STEAM_GAME_DIRS {
         let game_path = common_dir.join(dir_name);
@@ -194,14 +193,15 @@ fn find_game_in_steam_library(lib_path: &Path, games: &mut Vec<DetectedGame>) {
             return;
         }
     }
-    
+
     // 如果已知目录名都没找到，遍历 common 目录查找
     if let Ok(entries) = std::fs::read_dir(&common_dir) {
         for entry in entries.filter_map(Result::ok) {
             let dir_name = entry.file_name().to_string_lossy().to_lowercase();
             // 匹配包含 "umamusume" 或 "uma" + "derby" 的目录
-            if dir_name.contains("umamusume") || 
-               (dir_name.contains("uma") && dir_name.contains("derby")) {
+            if dir_name.contains("umamusume")
+                || (dir_name.contains("uma") && dir_name.contains("derby"))
+            {
                 let game_path = entry.path();
                 if is_valid_game_dir(&game_path) {
                     if !games.iter().any(|g: &DetectedGame| g.path == game_path) {
@@ -220,23 +220,23 @@ fn find_game_in_steam_library(lib_path: &Path, games: &mut Vec<DetectedGame>) {
 fn scan_steam_games() -> Option<Vec<DetectedGame>> {
     let mut games = Vec::new();
     let mut library_paths: Vec<PathBuf> = Vec::new();
-    
+
     // 从注册表获取 Steam 安装路径
     #[cfg(windows)]
     {
         use winreg::enums::*;
         use winreg::RegKey;
-        
+
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-        
+
         // 尝试 64 位和 32 位路径
         let steam_paths = [
             hklm.open_subkey(r"SOFTWARE\Valve\Steam"),
             hklm.open_subkey(r"SOFTWARE\WOW6432Node\Valve\Steam"),
             hkcu.open_subkey(r"SOFTWARE\Valve\Steam"),
         ];
-        
+
         for result in steam_paths {
             if let Ok(key) = result {
                 let path: String = match key.get_value("InstallPath") {
@@ -244,10 +244,10 @@ fn scan_steam_games() -> Option<Vec<DetectedGame>> {
                     Err(_) => continue,
                 };
                 let steam_path = PathBuf::from(&path);
-                
+
                 // 添加默认库路径
                 library_paths.push(steam_path.clone());
-                
+
                 // 解析 libraryfolders.vdf 获取其他库路径
                 let vdf_path = steam_path.join("steamapps").join("libraryfolders.vdf");
                 if let Ok(content) = std::fs::read_to_string(&vdf_path) {
@@ -266,33 +266,33 @@ fn scan_steam_games() -> Option<Vec<DetectedGame>> {
                         }
                     }
                 }
-                
+
                 break;
             }
         }
     }
-    
+
     // 在所有库路径中查找游戏
     for lib_path in library_paths {
         find_game_in_steam_library(&lib_path, &mut games);
     }
-    
+
     // 额外扫描常见 Steam 库位置
     let common_steam_libs = [
         r"C:\SteamLibrary",
-        r"D:\SteamLibrary", 
+        r"D:\SteamLibrary",
         r"E:\SteamLibrary",
         r"F:\SteamLibrary",
         r"G:\SteamLibrary",
     ];
-    
+
     for lib in common_steam_libs {
         let lib_path = PathBuf::from(lib);
         if lib_path.exists() {
             find_game_in_steam_library(&lib_path, &mut games);
         }
     }
-    
+
     if games.is_empty() {
         None
     } else {
@@ -300,47 +300,45 @@ fn scan_steam_games() -> Option<Vec<DetectedGame>> {
     }
 }
 
-
-
 /// 扫描 DMM 游戏路径（也会扫描所有注册表安装记录）
 fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
     let mut games = Vec::new();
-    
+
     #[cfg(windows)]
     {
         use winreg::enums::*;
         use winreg::RegKey;
-        
+
         // 扫描所有卸载信息
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-        
+
         let uninstall_paths = [
             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
             r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
         ];
-        
+
         for uninstall_path in uninstall_paths {
             if let Ok(uninstall_key) = hklm.open_subkey(uninstall_path) {
                 for name in uninstall_key.enum_keys().filter_map(Result::ok) {
                     // 检查 key 名称是否包含相关关键词
                     let name_lower = name.to_lowercase();
-                    let name_matches = name_lower.contains("umamusume") || 
-                                      name_lower.contains("uma musume") ||
-                                      name_lower.contains("pretty derby");
-                    
+                    let name_matches = name_lower.contains("umamusume")
+                        || name_lower.contains("uma musume")
+                        || name_lower.contains("pretty derby");
+
                     if let Ok(app_key) = uninstall_key.open_subkey(&name) {
                         let install_path: String = match app_key.get_value("InstallLocation") {
                             Ok(v) => v,
                             Err(_) => continue,
                         };
-                        
+
                         // 检查安装路径是否包含相关关键词
                         let path_lower = install_path.to_lowercase();
-                        let path_matches = path_lower.contains("umamusume") ||
-                                          path_lower.contains("uma musume") ||
-                                          path_lower.contains("pretty derby") ||
-                                          path_lower.contains("umapyoi");
-                        
+                        let path_matches = path_lower.contains("umamusume")
+                            || path_lower.contains("uma musume")
+                            || path_lower.contains("pretty derby")
+                            || path_lower.contains("umapyoi");
+
                         if name_matches || path_matches {
                             let path = PathBuf::from(&install_path);
                             if is_valid_game_dir(&path) {
@@ -356,8 +354,6 @@ fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
         }
     }
 
-
-    
     // DMM 常见安装路径（扩展列表）
     let dmm_paths = [
         // DMMGames 标准路径
@@ -397,7 +393,7 @@ fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
         r"G:\DMM\umamusume",
         r"G:\DMM\Umamusume",
     ];
-    
+
     for path in dmm_paths {
         let path = PathBuf::from(path);
         if is_valid_game_dir(&path) {
@@ -409,7 +405,7 @@ fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
             }
         }
     }
-    
+
     if games.is_empty() {
         None
     } else {

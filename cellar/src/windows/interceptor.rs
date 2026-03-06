@@ -5,7 +5,8 @@ use crate::core::Error;
 use minhook::MinHook;
 
 pub unsafe fn hook(orig_addr: usize, hook_addr: usize) -> Result<usize, Error> {
-    let trampoline_addr = MinHook::create_hook(orig_addr as *mut c_void, hook_addr as *mut c_void)? as usize;
+    let trampoline_addr =
+        MinHook::create_hook(orig_addr as *mut c_void, hook_addr as *mut c_void)? as usize;
     MinHook::enable_hook(orig_addr as *mut c_void)?;
     Ok(trampoline_addr)
 }

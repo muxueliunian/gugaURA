@@ -4,7 +4,7 @@
 
 ## 更新日志
 
-### v0.2.0 (2025-01-31)
+### v1.1.0 (2025-01-31)
 
 **新功能：**
 - FPS 解锁：支持自定义帧率 (60/120/144 或任意值)
@@ -104,6 +104,26 @@ GugaURA会将原始的msgpack二进制数据POST到你的服务：
 - `POST /notify/request` - 游戏发送的请求数据
 - `POST /notify/response` - 游戏收到的响应数据
 
+## 本地接收器（兼容其他插件）
+
+`GugaURA_Config.exe` 已内置本地接收器，启动配置工具后会自动监听本地端口接收任意插件转发的 payload（msgpack/json），并保存为 JSON 到 EXE 同级 `debug/` 目录。
+
+```bash
+# 仅需要打开配置工具（自动监听 127.0.0.1:4693）
+target/release/GugaURA_Config.exe
+
+# 可选：如果你需要独立无界面版本，也可运行下面的接收器
+cargo run -p guga_ura_receiver --release
+
+# 可选：独立接收器自定义端口与输出目录
+cargo run -p guga_ura_receiver --release -- --port 4700 --output-dir C:\\temp\\uma_debug
+```
+
+兼容路由：
+- `POST /notify/request`
+- `POST /notify/response`
+- `POST /*`（任意路径，自动识别 request/response/unknown）
+
 ## 项目结构
 
 ```
@@ -113,6 +133,9 @@ gugaURA/
 │   ├── Cargo.toml
 │   └── src/
 ├── guga_ura_config/     # 配置工具 -> GugaURA_Config.exe
+│   ├── Cargo.toml
+│   └── src/
+├── guga_ura_receiver/   # 本地接收器 -> guga_ura_receiver.exe
 │   ├── Cargo.toml
 │   └── src/
 └── cellar/              # 反检测 -> apphelp.dll

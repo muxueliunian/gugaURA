@@ -23,7 +23,7 @@ impl Il2CppArray {
     pub fn len(&self) -> usize {
         self.max_length
     }
-    
+
     /// 获取数组数据指针
     pub fn data_ptr<T>(&self) -> *const T {
         unsafe {
@@ -32,7 +32,7 @@ impl Il2CppArray {
             base.add(std::mem::size_of::<Il2CppArray>()) as *const T
         }
     }
-    
+
     /// 转换为切片
     pub unsafe fn as_slice<T>(&self) -> &[T] {
         std::slice::from_raw_parts(self.data_ptr(), self.len())

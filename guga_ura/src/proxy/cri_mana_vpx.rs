@@ -8,7 +8,7 @@
 use std::path::PathBuf;
 use widestring::U16CString;
 use windows::core::PCWSTR;
-use windows::Win32::System::LibraryLoader::{LoadLibraryW, GetProcAddress};
+use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 
 use crate::proxy_proc;
 
@@ -39,40 +39,45 @@ pub fn init() -> Result<(), String> {
     let data_dir = get_data_dir();
     // 使用 _orig 后缀与 installer.rs 保持一致
     let dll_path = data_dir.join("cri_mana_vpx_orig.dll");
-    
+
     if !dll_path.exists() {
         // 原始 DLL 不存在，跳过（可能是 DMM 版或未正确安装）
         warn!("cri_mana_vpx_orig.dll not found in data dir, skipping cri proxy init");
         return Ok(());
     }
-    
+
     unsafe {
-        let dll_path_str = dll_path.to_str()
-            .ok_or("Invalid path")?;
+        let dll_path_str = dll_path.to_str().ok_or("Invalid path")?;
         let dll_path_wide = U16CString::from_str(dll_path_str)
             .map_err(|e| format!("Path encoding error: {}", e))?;
-        
+
         let handle = LoadLibraryW(PCWSTR(dll_path_wide.as_ptr()))
             .map_err(|e| format!("Failed to load cri_mana_vpx.dll: {}", e))?;
-        
+
         // 获取函数地址
         if let Some(addr) = GetProcAddress(handle, windows::core::s!("criVvp9_GetAlphaInterface")) {
             criVvp9_GetAlphaInterface_orig = addr as usize;
         }
-        
+
         if let Some(addr) = GetProcAddress(handle, windows::core::s!("criVvp9_GetInterface")) {
             criVvp9_GetInterface_orig = addr as usize;
         }
-        
+
         if let Some(addr) = GetProcAddress(handle, windows::core::s!("criVvp9_SetUserAllocator")) {
             criVvp9_SetUserAllocator_orig = addr as usize;
         }
-        
+
         info!("cri_mana_vpx proxy initialized");
-        info!("  criVvp9_GetAlphaInterface: 0x{:X}", criVvp9_GetAlphaInterface_orig);
+        info!(
+            "  criVvp9_GetAlphaInterface: 0x{:X}",
+            criVvp9_GetAlphaInterface_orig
+        );
         info!("  criVvp9_GetInterface: 0x{:X}", criVvp9_GetInterface_orig);
-        info!("  criVvp9_SetUserAllocator: 0x{:X}", criVvp9_SetUserAllocator_orig);
+        info!(
+            "  criVvp9_SetUserAllocator: 0x{:X}",
+            criVvp9_SetUserAllocator_orig
+        );
     }
-    
+
     Ok(())
 }

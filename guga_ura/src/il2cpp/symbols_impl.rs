@@ -5,15 +5,15 @@
 //! 原始项目: https://github.com/Hachimi-Hachimi/Hachimi
 //! 许可证: GPL-3.0
 
-use std::ffi::{CStr, CString};
-use std::path::PathBuf;
 use fnv::FnvHashMap;
 use once_cell::sync::Lazy;
 use pelite::{pe::Pe, pe64::PeFile, FileMap};
+use std::ffi::{CStr, CString};
+use std::path::PathBuf;
+use widestring::Utf16Str;
+use windows::core::PCSTR;
 use windows::Win32::Foundation::{HMODULE, MAX_PATH};
 use windows::Win32::System::LibraryLoader::{GetModuleFileNameW, GetProcAddress};
-use windows::core::PCSTR;
-use widestring::Utf16Str;
 
 /// 需要解析的IL2CPP符号列表（只包含我们需要的）
 const SYMBOL_LIST: &[&'static str] = &[
@@ -250,7 +250,7 @@ const SYMBOL_LIST: &[&'static str] = &[
     "il2cpp_class_set_userdata",
     "il2cpp_class_get_userdata_offset",
     "il2cpp_set_default_thread_affinity",
-    "il2cpp_unity_set_android_network_up_state_func"
+    "il2cpp_unity_set_android_network_up_state_func",
 ];
 
 /// UnityPlayer.dll中符号表的起始RVA
@@ -282,21 +282,22 @@ fn generate_symbol_map() -> Result<FnvHashMap<&'static str, CString>, String> {
 
     let mut path = get_game_dir();
     path.push("UnityPlayer.dll");
-    
+
     info!("Parsing symbol map from: {:?}", path);
-    
-    let file_map = FileMap::open(&path)
-        .map_err(|e| format!("Failed to open UnityPlayer.dll: {}", e))?;
-    let pe = PeFile::from_bytes(&file_map)
-        .map_err(|e| format!("Failed to parse PE: {}", e))?;
+
+    let file_map =
+        FileMap::open(&path).map_err(|e| format!("Failed to open UnityPlayer.dll: {}", e))?;
+    let pe = PeFile::from_bytes(&file_map).map_err(|e| format!("Failed to parse PE: {}", e))?;
     let image = file_map.as_ref();
 
     let mut rva = START_RVA;
     for symbol in SYMBOL_LIST {
-        let offset = pe.rva_to_file_offset(rva)
+        let offset = pe
+            .rva_to_file_offset(rva)
             .map_err(|e| format!("Failed to convert RVA 0x{:X}: {}", rva, e))?;
-        let rip_offset = u32::from_le_bytes(image[offset..offset+4].try_into().unwrap());
-        let name_offset = pe.rva_to_file_offset(rva + 0x4 + rip_offset)
+        let rip_offset = u32::from_le_bytes(image[offset..offset + 4].try_into().unwrap());
+        let name_offset = pe
+            .rva_to_file_offset(rva + 0x4 + rip_offset)
             .map_err(|e| format!("Failed to get name offset: {}", e))?;
         let name = unsafe { CStr::from_ptr(image[name_offset..].as_ptr() as _) };
         map.insert(*symbol, name.to_owned());
@@ -304,19 +305,18 @@ fn generate_symbol_map() -> Result<FnvHashMap<&'static str, CString>, String> {
     }
 
     info!("Symbol map generated with {} entries", map.len());
-    
+
     Ok(map)
 }
 
 /// 全局符号映射表
-static SYMBOL_MAP: Lazy<Result<FnvHashMap<&'static str, CString>, String>> = Lazy::new(|| {
-    generate_symbol_map()
-});
+static SYMBOL_MAP: Lazy<Result<FnvHashMap<&'static str, CString>, String>> =
+    Lazy::new(|| generate_symbol_map());
 
 /// 从GameAssembly.dll获取函数地址（使用符号映射）
 pub unsafe fn dlsym(handle: *mut std::ffi::c_void, name: &str) -> usize {
     debug_assert!(!handle.is_null());
-    
+
     let map = match SYMBOL_MAP.as_ref() {
         Ok(m) => m,
         Err(e) => {
@@ -324,7 +324,7 @@ pub unsafe fn dlsym(handle: *mut std::ffi::c_void, name: &str) -> usize {
             return 0;
         }
     };
-    
+
     let mangled_name = match map.get(name) {
         Some(n) => n,
         None => {
@@ -332,11 +332,14 @@ pub unsafe fn dlsym(handle: *mut std::ffi::c_void, name: &str) -> usize {
             return 0;
         }
     };
-    
+
     let addr = get_proc_address(HMODULE(handle as _), mangled_name);
     if addr == 0 {
-        warn!("GetProcAddress failed for {} (mangled: {:?})", name, mangled_name);
+        warn!(
+            "GetProcAddress failed for {} (mangled: {:?})",
+            name, mangled_name
+        );
     }
-    
+
     addr
 }

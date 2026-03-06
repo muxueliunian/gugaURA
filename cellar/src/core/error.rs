@@ -2,7 +2,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub enum Error {
-    HookingError(String)
+    HookingError(String),
 }
 
 impl fmt::Display for Error {

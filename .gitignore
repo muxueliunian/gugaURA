@@ -13,3 +13,9 @@ Cargo.lock
 # 配置文件（运行时生成）
 guga_ura_config.json
 guga_ura_data/
+
+# 本地调试/样例/设计文件
+debug/
+fans/
+docs/
+pencil/

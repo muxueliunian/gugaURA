@@ -1,6 +1,9 @@
 #![allow(non_snake_case, non_upper_case_globals)]
 
-use windows::{core::{BOOL, PCWSTR}, Win32::Foundation::{SetLastError, ERROR_FILE_NOT_FOUND}};
+use windows::{
+    core::{BOOL, PCWSTR},
+    Win32::Foundation::{SetLastError, ERROR_FILE_NOT_FOUND},
+};
 
 use crate::{core::Error, windows::interceptor};
 
@@ -25,7 +28,8 @@ unsafe extern "C" fn PathFileExistsW(filename: PCWSTR) -> BOOL {
 fn init_internal() -> Result<(), Error> {
     unsafe {
         info!("Hooking PathFileExistsW");
-        PathFileExistsW_orig = interceptor::hook(ffi::PathFileExistsW as usize, PathFileExistsW as usize)?;
+        PathFileExistsW_orig =
+            interceptor::hook(ffi::PathFileExistsW as usize, PathFileExistsW as usize)?;
     }
 
     Ok(())
