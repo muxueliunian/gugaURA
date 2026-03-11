@@ -18,8 +18,8 @@ guga_ura_data/
 debug/
 fans/
 docs/*
-!docs/tasks/
-docs/tasks/*
+docs/tasks/
+
 !docs/tasks/phase-5-task-3-regression-and-cutover.md
 pencil/
 
