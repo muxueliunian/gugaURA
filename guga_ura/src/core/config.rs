@@ -37,7 +37,7 @@ pub struct Config {
     #[serde(default)]
     pub debug_output_dir: Option<String>,
 
-    /// Fans 聚合输出目录（绝对路径优先，接收端使用）
+    /// 社团Fans 输出目录（绝对路径优先，接收端使用）
     #[serde(default)]
     pub fans_output_dir: Option<String>,
 

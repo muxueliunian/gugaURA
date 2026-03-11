@@ -29,7 +29,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/features/receiver-config/pages/ReceiverConfigPage.vue'),
     meta: {
       title: '接收&转发配置',
-      description: '管理 Receiver 监听、Relay 二次转发与 Fans 聚合设置。',
+      description: '管理 Receiver 监听、Relay 二次转发与社团Fans设置。',
     },
   },
   {

@@ -19,7 +19,7 @@ export const APP_NAVIGATION_ITEMS: AppNavigationItem[] = [
   {
     path: '/receiver-config',
     title: '接收&转发配置',
-    description: '管理 Receiver 监听、Relay 二次转发与 Fans 聚合设置。',
+    description: '管理 Receiver 监听、Relay 二次转发与社团Fans设置。',
   },
   {
     path: '/terminal',

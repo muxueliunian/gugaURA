@@ -179,14 +179,14 @@ fn handle_request(mut request: Request, output_dir: &Path, self_listen_addr: &st
             Ok(ReceiverProcessOutcome::Saved(prepared)) => {
                 if let Some(path) = prepared.fans_output_path.as_ref() {
                     log_info(format!(
-                        "Fans 聚合更新: route={} output={}",
+                        "社团Fans 更新: route={} output={}",
                         prepared.route,
                         path.display()
                     ));
                 }
                 if let Some(error) = prepared.fans_error.as_ref() {
                     log_warn(format!(
-                        "Fans 聚合失败: route={} error={}",
+                        "社团Fans 失败: route={} error={}",
                         prepared.route, error
                     ));
                 }

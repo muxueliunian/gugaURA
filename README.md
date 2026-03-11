@@ -197,6 +197,12 @@ gugaURA/
 └── cellar/                 # 反检测相关 DLL
 ```
 
+## 快捷编译
+
+cd gugaURA\guga_ura_config_tauri
+pnpm build:windows-installer
+
+
 ## 许可证
 
 GPL-3.0

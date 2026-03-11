@@ -3,7 +3,7 @@
     <PageHeader
       eyebrow="接收与转发"
       title="接收&转发配置"
-      description="负责 Receiver 监听、Relay 二次转发和 Fans 聚合设置；保存后下次启动配置工具生效。"
+      description="负责 Receiver 监听、Relay 二次转发和社团Fans设置；保存后下次启动配置工具生效。"
     >
       <template #actions>
         <el-button
@@ -138,11 +138,11 @@
         </SectionCard>
 
         <SectionCard
-          title="Fans 聚合配置"
-          description="独立管理 Fans 聚合保存开关与输出目录，避免与 Relay 配置混在一起。"
+          title="社团Fans配置"
+          description="独立管理社团Fans保存开关与输出目录，避免与 Relay 配置混在一起。"
         >
           <el-form label-position="top">
-            <el-form-item label="Fans 聚合保存">
+            <el-form-item label="社团Fans保存">
               <div class="receiver-config-page__switch-row">
                 <el-switch
                   v-model="form.fansEnabled"
@@ -150,7 +150,7 @@
                   active-text="开"
                   inactive-text="关"
                 />
-                <span>开启后按 `viewer_id` 覆盖更新 Fans 聚合输出。</span>
+                <span>开启后按 `viewer_id` 覆盖更新社团Fans输出。</span>
               </div>
             </el-form-item>
 
@@ -173,7 +173,7 @@
                 {{
                   form.fansEnabled
                     ? `当前保存目录：${fansOutputDirDisplay}`
-                    : '关闭后会保留配置值，但当前运行不会继续更新 Fans 聚合输出。'
+                    : '关闭后会保留配置值，但当前运行不会继续更新社团Fans输出。'
                 }}
               </p>
             </el-form-item>

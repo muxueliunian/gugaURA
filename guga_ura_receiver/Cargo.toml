@@ -1,6 +1,6 @@
 [package]
 name = "guga_ura_receiver"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2021"
 description = "Local HTTP receiver for Uma Musume msgpack payloads"
 

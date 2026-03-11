@@ -95,7 +95,7 @@
           <el-descriptions-item label="Notifier 地址">
             <span class="overview-page__code">{{ context.notifierHost }}</span>
           </el-descriptions-item>
-          <el-descriptions-item label="Fans 聚合">
+          <el-descriptions-item label="社团Fans">
             <StatusBadge
               :label="context?.fansEnabled ? '已开启' : '已关闭'"
               :type="context?.fansEnabled ? 'success' : 'warning'"
