@@ -1,0 +1,20 @@
+{
+  "name": "guga-ura-config-tauri-workspace",
+  "private": true,
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter guga-ura-config-tauri-frontend dev",
+    "build": "pnpm --filter guga-ura-config-tauri-frontend build",
+    "build:dlls": "cargo build --manifest-path ../Cargo.toml --release -p guga_ura -p cellar",
+    "build:release-assets": "pnpm build:dlls && pnpm build",
+    "clean:installer-artifacts": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/clean-installer-artifacts.ps1",
+    "rename:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/rename-installer.ps1",
+    "build:windows-installer": "pnpm clean:installer-artifacts && pnpm tauri build && pnpm rename:installer",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

@@ -13,3 +13,4 @@ rmp-serde = "1.3"
 log = "0.4"
 env_logger = "0.11"
 guga_ura_fans = { path = "../guga_ura_fans" }
+guga_ura_config_core = { path = "../guga_ura_config_core" }

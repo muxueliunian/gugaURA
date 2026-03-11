@@ -17,5 +17,12 @@ guga_ura_data/
 # 本地调试/样例/设计文件
 debug/
 fans/
-docs/
+docs/*
+!docs/tasks/
+docs/tasks/*
+!docs/tasks/phase-5-task-3-regression-and-cutover.md
 pencil/
+
+
+# hachimi cellar
+cellar/

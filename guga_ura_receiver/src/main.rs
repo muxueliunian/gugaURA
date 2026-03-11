@@ -7,6 +7,10 @@ use axum::{
     Router,
 };
 use clap::Parser;
+use guga_ura_config_core::receiver;
+use guga_ura_config_core::receiver_pipeline::{
+    self, ReceiverHeader, ReceiverProcessOutcome, RelayOutcome,
+};
 use log::{error, info, warn};
 use serde_json::json;
 use std::fs;
@@ -20,11 +24,11 @@ use tokio::net::TcpListener;
 #[command(name = "guga_ura_receiver")]
 #[command(about = "Receive msgpack payloads from local plugins and save as JSON")]
 struct Cli {
-    #[arg(long, default_value = "127.0.0.1")]
-    host: String,
+    #[arg(long)]
+    host: Option<String>,
 
-    #[arg(long, default_value_t = 4693)]
-    port: u16,
+    #[arg(long)]
+    port: Option<u16>,
 
     #[arg(long)]
     output_dir: Option<PathBuf>,
@@ -34,6 +38,7 @@ struct Cli {
 struct AppState {
     output_dir: Arc<PathBuf>,
     seq: Arc<AtomicU64>,
+    self_listen_addr: Arc<String>,
 }
 
 #[tokio::main]
@@ -41,6 +46,12 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let cli = Cli::parse();
+    let base_resolution = receiver::resolve_receiver_listen_addr(None);
+    let cli_listen_addr = build_cli_listen_addr(&cli, &base_resolution.listen_addr);
+    let listen_resolution = cli_listen_addr
+        .as_deref()
+        .map(|listen_addr| receiver::resolve_receiver_listen_addr(Some(listen_addr)))
+        .unwrap_or(base_resolution);
 
     let output_dir = cli.output_dir.unwrap_or_else(default_output_dir);
     if let Err(e) = fs::create_dir_all(&output_dir) {
@@ -52,12 +63,21 @@ async fn main() {
         std::process::exit(1);
     }
 
-    let ip = parse_ip(&cli.host);
-    let addr = SocketAddr::new(ip, cli.port);
+    let (listen_host, listen_port) =
+        receiver::parse_receiver_listen_addr(&listen_resolution.listen_addr).unwrap_or_else(|| {
+            error!(
+                "Failed to parse resolved listen addr {}",
+                listen_resolution.listen_addr
+            );
+            std::process::exit(1);
+        });
+    let ip = parse_ip(&listen_host);
+    let addr = SocketAddr::new(ip, listen_port);
 
     let state = AppState {
         output_dir: Arc::new(output_dir.clone()),
         seq: Arc::new(AtomicU64::new(0)),
+        self_listen_addr: Arc::new(listen_resolution.listen_addr.clone()),
     };
 
     let app = Router::new()
@@ -68,6 +88,11 @@ async fn main() {
         .with_state(state);
 
     info!("Receiver listening on http://{}", addr);
+    info!(
+        "Receiver listen addr source: {} (configured={})",
+        listen_resolution.source.as_str(),
+        listen_resolution.configured_listen_addr
+    );
     info!("Debug output dir: {}", output_dir.display());
     let fans_settings = guga_ura_fans::resolve_fans_settings_from_exe_config();
     info!("Fans aggregate enabled: {}", fans_settings.enabled);
@@ -131,18 +156,31 @@ fn handle_payload(
         return (StatusCode::BAD_REQUEST, "Empty request body".to_string());
     }
 
+    let relay_headers = headers_to_relay_headers(&headers);
     let direction = fixed_direction
         .map(std::string::ToString::to_string)
         .unwrap_or_else(|| guga_ura_fans::infer_direction(route));
 
-    match save_payload_as_json(&state, route, &direction, &headers, &body) {
+    let response = match save_payload_as_json(&state, route, &direction, &headers, &body) {
         Ok(Some(file_path)) => (StatusCode::OK, format!("saved: {}", file_path.display())),
         Ok(None) => (StatusCode::OK, "ignored: non-response payload".to_string()),
         Err(e) => {
             warn!("Decode/save failed on route {}: {}", route, e);
             (StatusCode::BAD_REQUEST, e)
         }
-    }
+    };
+
+    log_relay_outcome(
+        receiver_pipeline::relay_receiver_payload(
+            &state.self_listen_addr,
+            route,
+            &body,
+            &relay_headers,
+        ),
+        route,
+    );
+
+    response
 }
 
 fn save_payload_as_json(
@@ -152,87 +190,67 @@ fn save_payload_as_json(
     headers: &HeaderMap,
     body: &[u8],
 ) -> Result<Option<PathBuf>, String> {
-    if !guga_ura_fans::should_persist_debug_payload(direction, route) {
-        return Ok(None);
-    }
-
-    fs::create_dir_all(state.output_dir.as_ref())
-        .map_err(|e| format!("create_dir_all failed: {}", e))?;
-
-    let (decoded_as, payload) = guga_ura_fans::decode_payload(body)?;
-
-    let now_ms = guga_ura_fans::now_millis();
-    let seq = state.seq.fetch_add(1, Ordering::Relaxed);
-    let direction_tag = sanitize_tag(direction);
-    let filename = format!("{}_{:06}_{}.json", direction_tag, seq, now_ms);
-    let file_path = state.output_dir.join(filename);
-
     let plugin = header_value(headers, "x-plugin-name").unwrap_or("unknown");
     let content_type = header_value(headers, "content-type").unwrap_or("unknown");
 
-    let fans_settings = guga_ura_fans::resolve_fans_settings_from_exe_config();
-    if fans_settings.enabled {
-        match guga_ura_fans::upsert_fans_from_decoded_payload(
-            &payload,
-            direction,
-            route,
-            now_ms,
-            &fans_settings.output_dir,
-        ) {
-            Ok(Some(path)) => info!("Fans aggregate updated: {}", path.display()),
-            Ok(None) => {}
-            Err(e) => warn!("Fans aggregate failed on route {}: {}", route, e),
+    match receiver_pipeline::prepare_receiver_payload(
+        state.output_dir.as_ref(),
+        route,
+        Some(direction),
+        body,
+        || state.seq.fetch_add(1, Ordering::Relaxed),
+    )? {
+        ReceiverProcessOutcome::Ignored => Ok(None),
+        ReceiverProcessOutcome::Saved(prepared) => {
+            if let Some(path) = prepared.fans_output_path.as_ref() {
+                info!("Fans aggregate updated: {}", path.display());
+            }
+            if let Some(error) = prepared.fans_error.as_ref() {
+                warn!("Fans aggregate failed on route {}: {}", route, error);
+            }
+
+            let wrapped = json!({
+                "direction": prepared.direction,
+                "route": prepared.route,
+                "received_at_unix_ms": prepared.now_ms,
+                "payload_size": body.len(),
+                "decoded_as": prepared.decoded_as,
+                "source": {
+                    "plugin": plugin,
+                    "content_type": content_type
+                },
+                "payload": prepared.payload
+            });
+
+            receiver_pipeline::write_receiver_payload_json(&prepared.file_path, &wrapped)?;
+
+            info!(
+                "Saved {} bytes from {} as {} ({})",
+                body.len(),
+                route,
+                prepared.file_path.display(),
+                wrapped["decoded_as"].as_str().unwrap_or("unknown")
+            );
+
+            Ok(Some(prepared.file_path))
         }
     }
-
-    let wrapped = json!({
-        "direction": direction,
-        "route": route,
-        "received_at_unix_ms": now_ms,
-        "payload_size": body.len(),
-        "decoded_as": decoded_as,
-        "source": {
-            "plugin": plugin,
-            "content_type": content_type
-        },
-        "payload": payload
-    });
-
-    let json_str = serde_json::to_string_pretty(&wrapped)
-        .map_err(|e| format!("to_string_pretty failed: {}", e))?;
-
-    fs::write(&file_path, json_str)
-        .map_err(|e| format!("write {} failed: {}", file_path.display(), e))?;
-
-    info!(
-        "Saved {} bytes from {} as {} ({})",
-        body.len(),
-        route,
-        file_path.display(),
-        decoded_as
-    );
-
-    Ok(Some(file_path))
 }
 
 fn header_value<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
     headers.get(name).and_then(|v| v.to_str().ok())
 }
 
-fn sanitize_tag(tag: &str) -> String {
-    let mut out = String::with_capacity(tag.len());
-    for ch in tag.chars() {
-        if ch.is_ascii_alphanumeric() {
-            out.push(ch.to_ascii_lowercase());
-        } else {
-            out.push('_');
-        }
-    }
-    if out.is_empty() {
-        "unknown".to_string()
-    } else {
-        out
-    }
+fn headers_to_relay_headers(headers: &HeaderMap) -> Vec<ReceiverHeader> {
+    headers
+        .iter()
+        .filter_map(|(name, value)| {
+            value
+                .to_str()
+                .ok()
+                .map(|value| ReceiverHeader::new(name.as_str(), value))
+        })
+        .collect()
 }
 
 fn default_output_dir() -> PathBuf {
@@ -251,4 +269,30 @@ fn parse_ip(host: &str) -> IpAddr {
         warn!("Invalid host '{}', fallback to 127.0.0.1", host);
         IpAddr::V4(Ipv4Addr::LOCALHOST)
     })
+}
+
+fn build_cli_listen_addr(cli: &Cli, base_listen_addr: &str) -> Option<String> {
+    if cli.host.is_none() && cli.port.is_none() {
+        return None;
+    }
+
+    let (base_host, base_port) = receiver::parse_receiver_listen_addr(base_listen_addr)?;
+    let host = cli.host.clone().unwrap_or(base_host);
+    let port = cli.port.unwrap_or(base_port);
+    Some(format!("{}:{}", host, port))
+}
+
+fn log_relay_outcome(outcome: RelayOutcome, route: &str) {
+    match outcome {
+        RelayOutcome::Disabled | RelayOutcome::AlreadyRelayed => {}
+        RelayOutcome::SelfLoopBlocked => {
+            warn!("Relay skipped due to self-loop on route {}", route);
+        }
+        RelayOutcome::Forwarded(target) => {
+            info!("Relay forwarded: route={} target={}", route, target);
+        }
+        RelayOutcome::Failed(error) => {
+            warn!("Relay failed on route {}: {}", route, error);
+        }
+    }
 }

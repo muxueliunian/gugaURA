@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["guga_ura", "cellar", "guga_ura_config", "guga_ura_receiver", "guga_ura_fans"]
+members = ["guga_ura", "cellar", "guga_ura_config_core", "guga_ura_receiver", "guga_ura_fans", "guga_ura_config_tauri/src-tauri"]
 
 [profile.release]
 strip = true

@@ -1,6 +1,4 @@
-//! 配置管理
-//!
-//! 支持热重载：通过 ArcSwap 实现无锁读取 + 原子交换
+//! 配置结构
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -83,91 +81,69 @@ impl Config {
         false
     }
 
-    /// 获取配置文件路径
-    pub fn config_path() -> PathBuf {
-        // 配置文件放在DLL同目录下
-        let mut path = std::env::current_exe().unwrap_or_default();
-        path.pop();
-        path.push("guga_ura_config.json");
-        path
+    /// 获取配置文件路径（相对于游戏目录）
+    pub fn config_path(game_dir: &Path) -> PathBuf {
+        game_dir.join("guga_ura_config.json")
     }
 
-    /// 加载配置
-    pub fn load() -> Config {
-        let path = Self::config_path();
-        match Self::try_load() {
-            Ok(config) => return config,
-            Err(e) if path.exists() => {
-                warn!(
-                    "Failed to load config {}, keeping current/default config without overwriting file: {}",
-                    path.display(),
-                    e
-                );
-            }
-            Err(e) => {
-                warn!(
-                    "Config file not found or unreadable, will create default at {}: {}",
-                    path.display(),
-                    e
-                );
-            }
+    /// 获取配置文件路径（相对于配置工具 EXE 目录）
+    pub fn exe_config_path() -> PathBuf {
+        if let Ok(mut exe_path) = std::env::current_exe() {
+            exe_path.pop();
+            return exe_path.join("guga_ura_config.json");
         }
+        PathBuf::from("guga_ura_config.json")
+    }
 
-        let config = Config::default();
-        if !path.exists() {
-            match config.save() {
-                Ok(()) => {
-                    info!(
-                        "Default config written to {} (debug_mode = {})",
-                        path.display(),
-                        config.debug_mode
-                    );
-                }
-                Err(e) => {
-                    warn!("Failed to save default config {}: {}", path.display(), e);
+    /// 从游戏目录加载配置
+    pub fn load_from(game_dir: &Path) -> Config {
+        let path = Self::config_path(game_dir);
+
+        if path.exists() {
+            if let Ok(content) = fs::read_to_string(&path) {
+                if let Ok(config) = parse_config_json(&content) {
+                    return config;
                 }
             }
         }
-        info!(
-            "Using default config: notifier_host = {}, timeout_ms = {}, target_fps = {}, vsync_count = {}, debug_mode = {}, debug_output_dir = {:?}, fans_enabled = {}, fans_output_dir = {:?}",
-            config.notifier_host,
-            config.timeout_ms,
-            config.target_fps,
-            config.vsync_count,
-            config.debug_mode,
-            config.debug_output_dir,
-            config.fans_enabled,
-            config.fans_output_dir
-        );
-        config
+
+        Config::default()
     }
 
-    /// 尝试从磁盘加载配置，失败时返回错误，不覆盖现有文件。
-    pub fn try_load() -> Result<Config, String> {
-        let path = Self::config_path();
-        info!("Loading config from: {}", path.display());
-        let config = load_from_path(&path)?;
-        info!(
-            "Config loaded from {}: notifier_host = {}, timeout_ms = {}, target_fps = {}, vsync_count = {}, debug_mode = {}, debug_output_dir = {:?}, fans_enabled = {}, fans_output_dir = {:?}",
-            path.display(),
-            config.notifier_host,
-            config.timeout_ms,
-            config.target_fps,
-            config.vsync_count,
-            config.debug_mode,
-            config.debug_output_dir,
-            config.fans_enabled,
-            config.fans_output_dir
-        );
-        Ok(config)
+    /// 判断游戏目录配置文件中是否显式包含某个顶层字段
+    pub fn game_config_has_key(game_dir: &Path, key: &str) -> bool {
+        let path = Self::config_path(game_dir);
+        json_file_has_key(&path, key)
     }
 
-    /// 保存配置
-    pub fn save(&self) -> Result<(), String> {
-        let path = Self::config_path();
-        let json =
-            serde_json::to_string_pretty(self).map_err(|e| format!("Serialize error: {}", e))?;
-        fs::write(&path, json).map_err(|e| format!("Write error: {}", e))?;
+    /// 从配置工具 EXE 目录加载配置
+    pub fn load_from_exe_dir() -> Config {
+        let path = Self::exe_config_path();
+
+        if path.exists() {
+            if let Ok(content) = fs::read_to_string(&path) {
+                if let Ok(config) = parse_config_json(&content) {
+                    return config;
+                }
+            }
+        }
+
+        Config::default()
+    }
+
+    /// 保存配置到游戏目录
+    pub fn save_to(&self, game_dir: &Path) -> Result<(), String> {
+        let path = Self::config_path(game_dir);
+        let json = serde_json::to_string_pretty(self).map_err(|e| format!("序列化错误: {}", e))?;
+        fs::write(&path, json).map_err(|e| format!("写入错误: {}", e))?;
+        Ok(())
+    }
+
+    /// 保存配置到配置工具 EXE 目录
+    pub fn save_to_exe_dir(&self) -> Result<(), String> {
+        let path = Self::exe_config_path();
+        let json = serde_json::to_string_pretty(self).map_err(|e| format!("序列化错误: {}", e))?;
+        fs::write(&path, json).map_err(|e| format!("写入错误: {}", e))?;
         Ok(())
     }
 }
@@ -190,12 +166,6 @@ impl Default for Config {
     }
 }
 
-fn load_from_path(path: &Path) -> Result<Config, String> {
-    let content =
-        fs::read_to_string(path).map_err(|e| format!("read {} failed: {}", path.display(), e))?;
-    parse_config_json(&content).map_err(|e| format!("parse {} failed: {}", path.display(), e))
-}
-
 fn parse_config_json(content: &str) -> Result<Config, serde_json::Error> {
     serde_json::from_str(content).or_else(|_| {
         let trimmed = content.trim_start_matches('\u{feff}');
@@ -203,12 +173,26 @@ fn parse_config_json(content: &str) -> Result<Config, serde_json::Error> {
     })
 }
 
+fn json_file_has_key(path: &Path, key: &str) -> bool {
+    let Ok(content) = fs::read_to_string(path) else {
+        return false;
+    };
+    let trimmed = content.trim_start_matches('\u{feff}');
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(trimmed) else {
+        return false;
+    };
+    value
+        .as_object()
+        .map(|obj| obj.contains_key(key))
+        .unwrap_or(false)
+}
+
 #[cfg(test)]
 mod tests {
     use super::{parse_config_json, Config};
 
     #[test]
-    fn default_values_should_include_receiver_and_relay_fields() {
+    fn default_values_should_match_current_behavior() {
         let config = Config::default();
 
         assert_eq!(config.notifier_host, "http://127.0.0.1:4693");
@@ -225,7 +209,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_config_json_should_support_bom_and_backfill_new_fields() {
+    fn parse_config_json_should_support_bom() {
         let content = "\u{feff}{\"timeout_ms\":250,\"fans_enabled\":false}";
 
         let config = parse_config_json(content).expect("BOM 配置解析失败");
