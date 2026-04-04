@@ -19,6 +19,7 @@ export interface DllInjectionContext {
   debugOutputDir: string;
   fansEnabled: boolean;
   fansOutputDir: string;
+  steamRequirementNote: string;
 }
 
 export interface SaveDllInjectionConfigInput {

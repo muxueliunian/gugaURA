@@ -19,10 +19,13 @@ pub extern "C" fn DllMain(
     _reserved: *mut c_void,
 ) -> BOOL {
     if call_reason == DLL_PROCESS_ATTACH {
+        log_impl::raw_debug_output("[Cellar] DllMain PROCESS_ATTACH");
         log_impl::init(log::LevelFilter::Debug);
         info!("Cellar initializing");
+        log_impl::raw_debug_output("[Cellar] initializing");
         hook::init();
         info!("Attach completed");
+        log_impl::raw_debug_output("[Cellar] attach completed");
     }
     TRUE
 }

@@ -11,6 +11,7 @@ extern crate log;
 mod core;
 mod il2cpp;
 mod proxy;
+mod trace;
 
 use std::os::raw::{c_ulong, c_void};
 use windows::core::PCSTR;
@@ -25,6 +26,7 @@ const DLL_PROCESS_DETACH: c_ulong = 0;
 pub static mut DLL_HMODULE: HMODULE = HMODULE(std::ptr::null_mut());
 
 fn raw_debug_output(msg: &str) {
+    trace::append_runtime_log(msg);
     let mut bytes: Vec<u8> = msg.as_bytes().iter().copied().filter(|b| *b != 0).collect();
     bytes.push(b'\n');
     bytes.push(0);
@@ -41,6 +43,18 @@ pub extern "C" fn DllMain(hmodule: HMODULE, call_reason: c_ulong, _reserved: *mu
             DLL_HMODULE = hmodule;
         }
         raw_debug_output("[GugaURA] DllMain PROCESS_ATTACH");
+        raw_debug_output(&format!(
+            "[GugaURA] module handle = 0x{:X}",
+            hmodule.0 as usize
+        ));
+        raw_debug_output(&format!(
+            "[GugaURA] game_dir = {}",
+            trace::game_dir().display()
+        ));
+        raw_debug_output(&format!(
+            "[GugaURA] runtime_log = {}",
+            trace::runtime_log_path().display()
+        ));
 
         // 初始化日志 - Release模式也启用以便调试
         if let Err(e) = windebug_logger::init() {

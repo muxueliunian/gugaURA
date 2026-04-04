@@ -1,6 +1,6 @@
 [package]
 name = "cellar"
-version = "2.0.0"
+version = "2.0.2"
 edition = "2021"
 description = "Anti-detection bypass for Uma Musume"
 
@@ -17,5 +17,6 @@ minhook = "0.5"
 [dependencies.windows]
 version = "0.60"
 features = [
-    "Win32_Storage_FileSystem"
+    "Win32_Storage_FileSystem",
+    "Win32_System_Diagnostics_Debug",
 ]

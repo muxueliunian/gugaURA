@@ -26,6 +26,16 @@
       @close="handleClearError"
     />
 
+    <el-alert
+      v-if="context?.steamRequirementNote"
+      class="app-page__alert"
+      type="warning"
+      :closable="false"
+      show-icon
+      title="Steam JP 版额外前置条件"
+      :description="context.steamRequirementNote"
+    />
+
     <div class="dll-injection-page__metrics-row">
       <InfoCard
         label="当前目录"

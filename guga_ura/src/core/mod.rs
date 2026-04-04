@@ -19,11 +19,20 @@ use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 
 use crate::il2cpp;
 use crate::proxy;
+use crate::trace;
+use crate::DLL_HMODULE;
 
 static INSTANCE: OnceCell<Arc<GugaURA>> = OnceCell::new();
 static HOOKING_FINISHED: AtomicBool = AtomicBool::new(false);
 static DEBUG_MODE_STATE: AtomicU8 = AtomicU8::new(2);
 static DEBUG_MODE_DISABLED_HINT_LOGGED: AtomicBool = AtomicBool::new(false);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ProxyEntry {
+    UnityPlayer,
+    CriManaVpx,
+    Unknown,
+}
 
 fn log_debug_mode_state(debug_mode: bool) {
     let next = if debug_mode { 1 } else { 0 };
@@ -46,6 +55,13 @@ impl GugaURA {
     pub fn init() -> Result<(), String> {
         let config = Config::load();
         let config_path = Config::config_path();
+        trace::append_runtime_log(&format!(
+            "[core] init config_path={} notifier_host={} timeout_ms={} debug_mode={}",
+            config_path.display(),
+            config.notifier_host,
+            config.timeout_ms,
+            config.debug_mode
+        ));
         info!(
             "Config loaded: path = {}, notifier_host = {}, timeout_ms = {}, target_fps = {}, vsync_count = {}, debug_mode = {}, debug_output_dir = {:?}",
             config_path.display(),
@@ -117,6 +133,8 @@ impl GugaURA {
 
     fn setup_hooks() -> Result<(), String> {
         let instance = Self::instance();
+        let proxy_entry = Self::current_proxy_entry();
+        trace::append_runtime_log(&format!("[core] proxy entry = {:?}", proxy_entry));
 
         // 检查是否已经加载了 GameAssembly.dll (游戏可能已经启动)
         let game_assembly = unsafe { GetModuleHandleW(w!("GameAssembly.dll")) };
@@ -124,12 +142,18 @@ impl GugaURA {
         if let Ok(handle) = game_assembly {
             if !handle.is_invalid() {
                 info!("Late loading detected, GameAssembly already loaded");
+                trace::append_runtime_log(&format!(
+                    "[core] late loading detected, GameAssembly handle=0x{:X}",
+                    handle.0 as usize
+                ));
                 il2cpp::set_handle(handle.0 as usize);
 
-                // Steam 版晚加载：初始化 cri_mana_vpx 代理
-                info!("Init cri_mana_vpx proxy (late loading)");
-                if let Err(e) = proxy::cri_mana_vpx::init() {
-                    warn!("cri_mana_vpx proxy init failed: {}", e);
+                if let Err(e) = Self::init_proxy(proxy_entry) {
+                    warn!("proxy init failed during late loading: {}", e);
+                    trace::append_runtime_log(&format!(
+                        "[core] late proxy init failed: {}",
+                        e
+                    ));
                 }
 
                 // 延迟初始化HTTP hooks
@@ -141,18 +165,19 @@ impl GugaURA {
         // 正常流程：判断是 Steam 版还是 DMM 版
         let is_steam = Self::is_steam_release();
         info!("Game version: {}", if is_steam { "Steam" } else { "DMM" });
+        trace::append_runtime_log(&format!(
+            "[core] runtime game version = {}",
+            if is_steam { "Steam" } else { "DMM" }
+        ));
 
-        if is_steam {
-            // Steam 版：我们的 DLL 替换了 cri_mana_vpx.dll，需要初始化代理
-            info!("Setting up cri_mana_vpx proxy (Steam)");
-            proxy::cri_mana_vpx::init()?;
-        } else {
-            // DMM 版：代理 UnityPlayer.dll
-            info!("Setting up UnityPlayer proxy (DMM)");
-            proxy::unityplayer::init()?;
-        }
+        Self::init_proxy(match proxy_entry {
+            ProxyEntry::Unknown if is_steam => ProxyEntry::CriManaVpx,
+            ProxyEntry::Unknown => ProxyEntry::UnityPlayer,
+            known => known,
+        })?;
 
         info!("Hooking LoadLibraryW");
+        trace::append_runtime_log("[core] hooking LoadLibraryW");
         instance.interceptor.hook_load_library()?;
 
         Ok(())
@@ -162,15 +187,78 @@ impl GugaURA {
     /// 只有日本 Steam 版使用 umamusumeprettyderby_jpn.exe
     fn is_steam_release() -> bool {
         let exec_path = std::env::current_exe().unwrap_or_default();
+        let game_dir = exec_path
+            .parent()
+            .map(|parent| parent.to_path_buf())
+            .unwrap_or_else(|| trace::game_dir());
         let file_name = exec_path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+        let path_lower = game_dir.to_string_lossy().to_lowercase();
+        let steam_api_exists = game_dir.join("steam_api64.dll").exists();
+        let cri_backup_exists = trace::data_dir().join("cri_mana_vpx_orig.dll").exists();
+        let path_looks_like_steam =
+            path_lower.contains("steamapps") || path_lower.contains("steamlibrary");
+        let exe_looks_like_steam = file_name.eq_ignore_ascii_case("umamusumeprettyderby_jpn");
 
-        // 只有日本 Steam 版使用这个可执行文件名
-        file_name.eq_ignore_ascii_case("umamusumeprettyderby_jpn")
+        let is_steam =
+            steam_api_exists || cri_backup_exists || path_looks_like_steam || exe_looks_like_steam;
+        trace::append_runtime_log(&format!(
+            "[core] steam detection: exe={} steam_api64={} cri_backup={} path_looks_like_steam={} exe_looks_like_steam={} => {}",
+            exec_path.display(),
+            steam_api_exists,
+            cri_backup_exists,
+            path_looks_like_steam,
+            exe_looks_like_steam,
+            if is_steam { "Steam" } else { "DMM" }
+        ));
+        is_steam
+    }
+
+    fn current_proxy_entry() -> ProxyEntry {
+        let current = unsafe { DLL_HMODULE };
+        if current.is_invalid() {
+            return ProxyEntry::Unknown;
+        }
+
+        if let Ok(handle) = unsafe { GetModuleHandleW(w!("UnityPlayer.dll")) } {
+            if !handle.is_invalid() && handle == current {
+                return ProxyEntry::UnityPlayer;
+            }
+        }
+
+        if let Ok(handle) = unsafe { GetModuleHandleW(w!("cri_mana_vpx.dll")) } {
+            if !handle.is_invalid() && handle == current {
+                return ProxyEntry::CriManaVpx;
+            }
+        }
+
+        ProxyEntry::Unknown
+    }
+
+    fn init_proxy(proxy_entry: ProxyEntry) -> Result<(), String> {
+        match proxy_entry {
+            ProxyEntry::UnityPlayer => {
+                info!("Setting up UnityPlayer proxy");
+                trace::append_runtime_log("[core] setting up UnityPlayer proxy");
+                proxy::unityplayer::init()
+            }
+            ProxyEntry::CriManaVpx => {
+                info!("Setting up cri_mana_vpx proxy");
+                trace::append_runtime_log("[core] setting up cri_mana_vpx proxy");
+                proxy::cri_mana_vpx::init()
+            }
+            ProxyEntry::Unknown => {
+                trace::append_runtime_log(
+                    "[core] proxy entry unknown, skipping explicit proxy initialization",
+                );
+                Ok(())
+            }
+        }
     }
 
     /// 当 GameAssembly.dll 加载后调用
     pub fn on_game_assembly_loaded(handle: usize) {
         info!("GameAssembly.dll loaded at 0x{:X}", handle);
+        trace::append_runtime_log(&format!("[core] GameAssembly loaded handle=0x{:X}", handle));
         il2cpp::set_handle(handle);
     }
 
@@ -183,6 +271,7 @@ impl GugaURA {
         }
 
         info!("Game ready, initializing HTTP hooks (first time only)");
+        trace::append_runtime_log("[core] on_game_ready fired");
         Self::try_init_http_hooks();
     }
 
@@ -190,6 +279,10 @@ impl GugaURA {
     fn try_init_http_hooks() {
         let instance = Self::instance();
         let config = instance.config.load();
+        trace::append_runtime_log(&format!(
+            "[core] try_init_http_hooks target_fps={} vsync_count={} notifier_host={}",
+            config.target_fps, config.vsync_count, config.notifier_host
+        ));
 
         // 初始化IL2CPP符号
         il2cpp::init();
@@ -203,10 +296,12 @@ impl GugaURA {
         // Hook HTTP请求/响应
         if let Err(e) = il2cpp::http_hook::init() {
             error!("Failed to hook HTTP: {}", e);
+            trace::append_runtime_log(&format!("[core] http hook init failed: {}", e));
             // 标记为未完成，以便下次重试
             HOOKING_FINISHED.store(false, Ordering::Relaxed);
         } else {
             info!("HTTP hooks installed successfully!");
+            trace::append_runtime_log("[core] http hooks installed successfully");
         }
     }
 

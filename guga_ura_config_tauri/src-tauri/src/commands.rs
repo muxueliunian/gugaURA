@@ -90,6 +90,7 @@ pub struct DllInjectionContextDto {
     pub debug_output_dir: String,
     pub fans_enabled: bool,
     pub fans_output_dir: String,
+    pub steam_requirement_note: String,
 }
 
 /// DLL 注入页保存输入
@@ -314,9 +315,16 @@ pub fn install_dll_injection(
     let mut config = load_effective_config(Some(&game_dir));
     apply_dll_injection_fields(&mut config, &input)?;
 
+    let base_notice = if is_jp_steam_game_dir(&game_dir, version) {
+        "已完成 Steam JP 代理 DLL 与 FunnyHoney 启动器部署，并已备份原始 UmamusumePrettyDerby_Jpn.exe。"
+            .to_string()
+    } else {
+        "安装成功".to_string()
+    };
+
     let notice = match save_config_to_targets(&game_dir, &config) {
-        Ok(()) => "安装成功".to_string(),
-        Err(error) => format!("安装成功，但配置同步失败: {}", error),
+        Ok(()) => base_notice,
+        Err(error) => format!("{} 配置同步失败: {}", base_notice, error),
     };
 
     Ok(DllInjectionActionResultDto {
@@ -433,6 +441,12 @@ fn build_dll_injection_context(path: Option<&str>) -> DllInjectionContextDto {
         None
     };
 
+    let inspect_game_version = game_dir
+        .as_deref()
+        .filter(|dir| is_valid_game_dir(dir))
+        .map(detect_game_version)
+        .unwrap_or(GameVersion::Unknown);
+
     let inspect = game_dir
         .as_deref()
         .map(build_inspect_game_dir_result)
@@ -453,6 +467,10 @@ fn build_dll_injection_context(path: Option<&str>) -> DllInjectionContextDto {
     let fans_enabled = config.fans_enabled;
     let debug_output_dir = resolve_debug_output_dir(&config);
     let fans_output_dir = resolve_fans_output_dir(&config);
+    let steam_requirement_note = game_dir
+        .as_deref()
+        .map(|dir| build_steam_requirement_note(dir, inspect_game_version))
+        .unwrap_or_default();
 
     DllInjectionContextDto {
         path: normalized_path,
@@ -469,7 +487,20 @@ fn build_dll_injection_context(path: Option<&str>) -> DllInjectionContextDto {
         debug_output_dir,
         fans_enabled,
         fans_output_dir,
+        steam_requirement_note,
     }
+}
+
+fn build_steam_requirement_note(game_dir: &Path, version: GameVersion) -> String {
+    if !is_jp_steam_game_dir(game_dir, version) {
+        return String::new();
+    }
+
+    "Steam JP 版会部署 cri_mana_vpx.dll 代理，并同时备份原始 UmamusumePrettyDerby_Jpn.exe 后写入 FunnyHoney 启动器。游戏更新后如果原始启动器被恢复，请重新执行一次安装。".to_string()
+}
+
+fn is_jp_steam_game_dir(game_dir: &Path, version: GameVersion) -> bool {
+    version == GameVersion::Steam && game_dir.join("UmamusumePrettyDerby_Jpn.exe").exists()
 }
 
 fn build_receiver_runtime_settings() -> ReceiverRuntimeSettingsDto {
