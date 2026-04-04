@@ -1,6 +1,7 @@
 use chrono::{Local, TimeZone};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -36,6 +37,7 @@ pub struct FanRecord {
     pub comment: String,
     pub rank_score: u64,
     pub circle_id: u64,
+    pub is_current_circle_member: bool,
 }
 
 pub fn default_fans_output_dir() -> PathBuf {
@@ -139,36 +141,118 @@ fn extract_records(
 
     let circle_id = value_to_u64(circle_info.get("circle_id")).unwrap_or(0);
     let circle_name = value_to_string(circle_info.get("name"));
-
-    let users = data
+    let summary_users = data
         .get("summary_user_info_array")
         .and_then(Value::as_array);
-    let Some(users) = users else {
+    let mut summary_map = HashMap::new();
+
+    if let Some(summary_users) = summary_users {
+        for user in summary_users {
+            let Some(user_obj) = user.as_object() else {
+                continue;
+            };
+            let Some(viewer_id) = value_to_u64(user_obj.get("viewer_id")) else {
+                continue;
+            };
+            summary_map.insert(viewer_id, user_obj);
+        }
+    }
+
+    let circle_users = data.get("circle_user_array").and_then(Value::as_array);
+    let Some(circle_users) = circle_users else {
         return (ts, out);
     };
 
-    for user in users {
+    let mut current_member_ids = HashSet::new();
+    for user in circle_users {
         let Some(user_obj) = user.as_object() else {
             continue;
         };
         let Some(viewer_id) = value_to_u64(user_obj.get("viewer_id")) else {
             continue;
         };
+        if !current_member_ids.insert(viewer_id) {
+            continue;
+        }
 
-        let record = FanRecord {
-            name: value_to_string(user_obj.get("name")),
-            fan: value_to_u64(user_obj.get("fan")).unwrap_or(0),
-            circle_name: circle_name.clone(),
-            ts: ts.clone(),
-            viewer_id,
-            comment: value_to_string(user_obj.get("comment")),
-            rank_score: value_to_u64(user_obj.get("rank_score")).unwrap_or(0),
-            circle_id,
-        };
+        let detail = summary_map.get(&viewer_id).copied();
+        let record = build_fan_record(viewer_id, detail, circle_id, &circle_name, &ts, true);
         out.push((viewer_id.to_string(), record));
     }
 
+    let mut visible_friend_ids = HashSet::new();
+    if let Some(summary_users) = summary_users {
+        for user in summary_users {
+            let Some(user_obj) = user.as_object() else {
+                continue;
+            };
+            let Some(viewer_id) = value_to_u64(user_obj.get("viewer_id")) else {
+                continue;
+            };
+            if current_member_ids.contains(&viewer_id) || !visible_friend_ids.insert(viewer_id) {
+                continue;
+            }
+
+            let Some((visible_circle_id, visible_circle_name)) =
+                extract_visible_circle_info(user_obj)
+            else {
+                continue;
+            };
+
+            let record = build_fan_record(
+                viewer_id,
+                Some(user_obj),
+                visible_circle_id,
+                &visible_circle_name,
+                &ts,
+                false,
+            );
+            out.push((viewer_id.to_string(), record));
+        }
+    }
+
     (ts, out)
+}
+
+fn build_fan_record(
+    viewer_id: u64,
+    detail: Option<&Map<String, Value>>,
+    circle_id: u64,
+    circle_name: &str,
+    ts: &str,
+    is_current_circle_member: bool,
+) -> FanRecord {
+    FanRecord {
+        name: detail
+            .map(|user_obj| value_to_string(user_obj.get("name")))
+            .unwrap_or_default(),
+        fan: detail
+            .and_then(|user_obj| value_to_u64(user_obj.get("fan")))
+            .unwrap_or(0),
+        circle_name: circle_name.to_string(),
+        ts: ts.to_string(),
+        viewer_id,
+        comment: detail
+            .map(|user_obj| value_to_string(user_obj.get("comment")))
+            .unwrap_or_default(),
+        rank_score: detail
+            .and_then(|user_obj| value_to_u64(user_obj.get("rank_score")))
+            .unwrap_or(0),
+        circle_id,
+        is_current_circle_member,
+    }
+}
+
+fn extract_visible_circle_info(user_obj: &Map<String, Value>) -> Option<(u64, String)> {
+    let circle_info = user_obj.get("circle_info").and_then(Value::as_object)?;
+    let circle_id = value_to_u64(circle_info.get("circle_id")).unwrap_or(0);
+    let circle_name = value_to_string(circle_info.get("name"));
+
+    if circle_id == 0 && circle_name.is_empty() {
+        return None;
+    }
+
+    Some((circle_id, circle_name))
 }
 
 fn load_existing_records(file_path: &Path) -> Result<Map<String, Value>, String> {
@@ -314,34 +398,95 @@ mod tests {
     fn build_payload(
         circle_id: u64,
         circle_name: &str,
-        viewer_id: u64,
-        fan: u64,
-        rank_score: u64,
+        members: &[u64],
+        summary_users: Vec<Value>,
     ) -> Value {
         json!({
             "data": {
                 "circle_info": {
                     "circle_id": circle_id,
-                    "name": circle_name
+                    "name": circle_name,
+                    "member_num": members.len()
                 },
-                "summary_user_info_array": [
-                    {
+                "circle_user_array": members.iter().map(|viewer_id| {
+                    json!({
                         "viewer_id": viewer_id,
-                        "name": format!("user-{}", viewer_id),
-                        "fan": fan,
-                        "comment": "hello",
-                        "rank_score": rank_score
-                    }
-                ]
+                        "circle_id": circle_id,
+                        "membership": 1
+                    })
+                }).collect::<Vec<_>>(),
+                "summary_user_info_array": summary_users
             }
+        })
+    }
+
+    fn member_detail(
+        viewer_id: u64,
+        circle_id: u64,
+        circle_name: &str,
+        fan: u64,
+        rank_score: u64,
+    ) -> Value {
+        json!({
+            "viewer_id": viewer_id,
+            "name": format!("user-{}", viewer_id),
+            "fan": fan,
+            "comment": "hello",
+            "rank_score": rank_score,
+            "circle_info": {
+                "circle_id": circle_id,
+                "name": circle_name
+            }
+        })
+    }
+
+    fn friend_detail_with_circle(
+        viewer_id: u64,
+        circle_id: u64,
+        circle_name: &str,
+        fan: u64,
+        rank_score: u64,
+    ) -> Value {
+        json!({
+            "viewer_id": viewer_id,
+            "name": format!("friend-{}", viewer_id),
+            "fan": fan,
+            "comment": "friend",
+            "rank_score": rank_score,
+            "friend_state": 1,
+            "circle_info": {
+                "circle_id": circle_id,
+                "name": circle_name
+            }
+        })
+    }
+
+    fn friend_detail_without_circle(viewer_id: u64, fan: u64, rank_score: u64) -> Value {
+        json!({
+            "viewer_id": viewer_id,
+            "name": format!("friend-{}", viewer_id),
+            "fan": fan,
+            "comment": "friend",
+            "rank_score": rank_score,
+            "friend_state": 1
         })
     }
 
     #[test]
     fn upsert_is_last_write_wins_for_same_viewer() {
         let dir = tempfile::tempdir().expect("tempdir");
-        let payload1 = build_payload(1, "circle-a", 100, 10, 20);
-        let payload2 = build_payload(2, "circle-b", 100, 99, 88);
+        let payload1 = build_payload(
+            1,
+            "circle-a",
+            &[100],
+            vec![member_detail(100, 1, "circle-a", 10, 20)],
+        );
+        let payload2 = build_payload(
+            2,
+            "circle-b",
+            &[100],
+            vec![member_detail(100, 2, "circle-b", 99, 88)],
+        );
 
         let written1 = upsert_fans_from_decoded_payload(
             &payload1,
@@ -375,14 +520,28 @@ mod tests {
             row.get("circle_name").and_then(Value::as_str),
             Some("circle-b")
         );
+        assert_eq!(
+            row.get("is_current_circle_member").and_then(Value::as_bool),
+            Some(true)
+        );
     }
 
     #[test]
     fn supports_multiple_circles_in_one_day_file() {
         let dir = tempfile::tempdir().expect("tempdir");
         let ts_ms = 1_772_641_517_934;
-        let payload1 = build_payload(11, "circle-x", 101, 1, 1);
-        let payload2 = build_payload(22, "circle-y", 202, 2, 2);
+        let payload1 = build_payload(
+            11,
+            "circle-x",
+            &[101],
+            vec![member_detail(101, 11, "circle-x", 1, 1)],
+        );
+        let payload2 = build_payload(
+            22,
+            "circle-y",
+            &[202],
+            vec![member_detail(202, 22, "circle-y", 2, 2)],
+        );
 
         let written = upsert_fans_from_decoded_payload(
             &payload1,
@@ -423,6 +582,67 @@ mod tests {
                 .and_then(Value::as_u64),
             Some(22)
         );
+    }
+
+    #[test]
+    fn keeps_current_members_and_only_adds_friends_with_visible_circle_info() {
+        let payload = build_payload(
+            77,
+            "current-circle",
+            &[100, 200],
+            vec![
+                member_detail(100, 77, "current-circle", 10, 20),
+                member_detail(200, 77, "current-circle", 30, 40),
+                friend_detail_with_circle(300, 88, "friend-circle", 50, 60),
+                friend_detail_without_circle(400, 70, 80),
+            ],
+        );
+
+        let (_, extracted) = extract_records(&payload, 1_772_641_517_934);
+        let extracted_map: HashMap<_, _> = extracted.into_iter().collect();
+
+        assert_eq!(extracted_map.len(), 3);
+        assert_eq!(
+            extracted_map
+                .get("100")
+                .and_then(|record| Some(record.is_current_circle_member)),
+            Some(true)
+        );
+        assert_eq!(
+            extracted_map
+                .get("100")
+                .map(|record| record.circle_name.as_str()),
+            Some("current-circle")
+        );
+        assert_eq!(
+            extracted_map
+                .get("300")
+                .and_then(|record| Some(record.is_current_circle_member)),
+            Some(false)
+        );
+        assert_eq!(
+            extracted_map
+                .get("300")
+                .map(|record| record.circle_name.as_str()),
+            Some("friend-circle")
+        );
+        assert!(!extracted_map.contains_key("400"));
+    }
+
+    #[test]
+    fn current_member_without_summary_detail_is_still_exported() {
+        let payload = build_payload(9, "circle-z", &[123], vec![]);
+
+        let (_, extracted) = extract_records(&payload, 1_772_641_517_934);
+        let extracted_map: HashMap<_, _> = extracted.into_iter().collect();
+        let record = extracted_map.get("123").expect("member should exist");
+
+        assert!(record.is_current_circle_member);
+        assert_eq!(record.circle_id, 9);
+        assert_eq!(record.circle_name, "circle-z");
+        assert_eq!(record.name, "");
+        assert_eq!(record.fan, 0);
+        assert_eq!(record.rank_score, 0);
     }
 
     #[test]
@@ -470,6 +690,7 @@ mod tests {
             "comment",
             "rank_score",
             "circle_id",
+            "is_current_circle_member",
         ] {
             assert!(first_obj.contains_key(key), "missing key {}", key);
         }
