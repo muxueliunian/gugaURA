@@ -322,6 +322,11 @@ const relayHint = computed(() => {
     return '关闭时仅本地处理，不会向下游发起二次转发。';
   }
 
+  const target = form.value.relayTargetHost.trim().toLowerCase();
+  if (target.startsWith('https://127.0.0.1') || target.startsWith('https://localhost')) {
+    return '本机下游只有在目标服务明确开启 TLS 时才使用 https://；普通本地接收服务请填写 http://127.0.0.1:端口。';
+  }
+
   return '下游地址用于接收 Receiver 的二次转发原始 msgpack，请勿指向当前 Receiver 自身。';
 });
 const runtimeEffectHint = computed(() => {

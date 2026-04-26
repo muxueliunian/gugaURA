@@ -122,7 +122,10 @@ where
                 route,
                 &settings.output_dir,
             );
-            if result.stallion_data_path.is_some() || result.player_profile_path.is_some() || result.error.is_some() {
+            if result.stallion_data_path.is_some()
+                || result.player_profile_path.is_some()
+                || result.error.is_some()
+            {
                 Some(result)
             } else {
                 None
@@ -261,12 +264,28 @@ fn relay_receiver_payload_with_settings(
 
     match request.send_bytes(body) {
         Ok(_) => RelayOutcome::Forwarded(relay_url),
-        Err(error) => RelayOutcome::Failed(format!("POST {} failed: {}", relay_url, error)),
+        Err(error) => RelayOutcome::Failed(format_relay_error(&relay_url, error)),
     }
 }
 
 fn should_forward_header(name: &str) -> bool {
     name.eq_ignore_ascii_case("content-type") || name.eq_ignore_ascii_case("x-plugin-name")
+}
+
+fn format_relay_error(relay_url: &str, error: ureq::Error) -> String {
+    let raw_error = error.to_string();
+    let local_https_target =
+        relay_url.starts_with("https://127.0.0.1") || relay_url.starts_with("https://localhost");
+    let tls_error = raw_error
+        .to_lowercase()
+        .contains("tls connection init failed");
+    let hint = if local_https_target && tls_error {
+        "；本机下游地址使用了 HTTPS，请确认目标服务确实启用了 TLS；普通本机 HTTP 服务应改为 http://"
+    } else {
+        ""
+    };
+
+    format!("POST {} failed: {}{}", relay_url, raw_error, hint)
 }
 
 fn normalize_target_base_url(value: &str) -> Option<Url> {

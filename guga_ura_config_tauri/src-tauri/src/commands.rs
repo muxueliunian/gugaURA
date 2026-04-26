@@ -13,6 +13,7 @@ use guga_ura_config_core::installer::{
 use guga_ura_config_core::receiver;
 use guga_ura_config_core::receiver_pipeline;
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::{Path, PathBuf};
 use tauri::State;
 
@@ -573,15 +574,30 @@ fn build_game_settings_context(path: Option<&str>) -> GameSettingsContextDto {
 
 fn resolve_default_game_dir() -> Option<PathBuf> {
     let detected_games = scan_installed_games_core();
+    select_default_game_dir(detected_games)
+}
 
-    if let Some(game) = detected_games
-        .iter()
-        .find(|game| Config::config_path(&game.path).exists())
-    {
-        return Some(game.path.clone());
+fn select_default_game_dir(detected_games: Vec<DetectedGame>) -> Option<PathBuf> {
+    let mut newest_configured_game = None;
+    for game in &detected_games {
+        let config_path = Config::config_path(&game.path);
+        let Ok(modified) = fs::metadata(config_path).and_then(|metadata| metadata.modified())
+        else {
+            continue;
+        };
+
+        if newest_configured_game
+            .as_ref()
+            .map(|(_, current_modified)| modified > *current_modified)
+            .unwrap_or(true)
+        {
+            newest_configured_game = Some((game.path.clone(), modified));
+        }
     }
 
-    detected_games.into_iter().next().map(|game| game.path)
+    newest_configured_game
+        .map(|(path, _)| path)
+        .or_else(|| detected_games.into_iter().next().map(|game| game.path))
 }
 
 fn resolve_game_settings_save_dir(path: &str) -> Result<PathBuf, String> {
@@ -876,9 +892,14 @@ fn normalize_optional_input(value: Option<&str>) -> Option<String> {
 mod tests {
     use super::{
         apply_receiver_runtime_fields, backfill_exe_side_receiver_fields,
-        build_receiver_runtime_settings_from_config, SaveReceiverRuntimeSettingsInput,
+        build_receiver_runtime_settings_from_config, select_default_game_dir,
+        SaveReceiverRuntimeSettingsInput,
     };
     use guga_ura_config_core::config::Config;
+    use guga_ura_config_core::detector::{DetectedGame, GameVersion};
+    use std::fs;
+    use std::thread;
+    use std::time::Duration;
 
     #[test]
     fn apply_receiver_runtime_fields_should_update_exe_side_settings() {
@@ -1017,5 +1038,41 @@ mod tests {
         assert_eq!(settings.relay_target_host, "");
         assert!(settings.fans_enabled);
         assert!(!settings.fans_output_dir.is_empty());
+    }
+
+    #[test]
+    fn select_default_game_dir_should_prefer_recent_config_file() {
+        let root = std::env::temp_dir().join(format!(
+            "gugaura_commands_default_dir_{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let steam_dir = root.join("steam");
+        let dmm_dir = root.join("dmm");
+        fs::create_dir_all(&steam_dir).expect("创建 Steam 临时目录失败");
+        fs::create_dir_all(&dmm_dir).expect("创建 DMM 临时目录失败");
+
+        Config::default()
+            .save_to(&steam_dir)
+            .expect("写入 Steam 配置失败");
+        thread::sleep(Duration::from_millis(20));
+        Config::default()
+            .save_to(&dmm_dir)
+            .expect("写入 DMM 配置失败");
+
+        let selected = select_default_game_dir(vec![
+            DetectedGame {
+                path: steam_dir.clone(),
+                version: GameVersion::Steam,
+            },
+            DetectedGame {
+                path: dmm_dir.clone(),
+                version: GameVersion::DMM,
+            },
+        ])
+        .expect("应选中默认游戏目录");
+
+        assert_eq!(selected, dmm_dir);
+        let _ = fs::remove_dir_all(root);
     }
 }

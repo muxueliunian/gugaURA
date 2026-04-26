@@ -11,8 +11,10 @@ import type {
   GameSettingsVsyncValue,
   SaveGameSettingsInput,
 } from '@/features/game-settings/types';
+import { useDllInjectionStore } from '@/stores/dllInjection';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
+  const dllInjectionStore = useDllInjectionStore();
   const context = ref<GameSettingsContext | null>(null);
   const lastError = ref('');
   const loading = ref(false);
@@ -33,11 +35,12 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
   }
 
   async function initialize(force = false): Promise<void> {
-    if (hasInitialized.value && !force) {
+    const currentPath = resolveCurrentPath();
+    if (hasInitialized.value && !force && isSamePath(context.value?.path, currentPath)) {
       return;
     }
 
-    await loadContext(resolveCurrentPath() || null);
+    await loadContext(currentPath || null);
     hasInitialized.value = true;
   }
 
@@ -105,6 +108,11 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
   }
 
   function resolveCurrentPath(): string {
+    const dllContext = dllInjectionStore.context;
+    if (dllContext?.isValidGameDir && dllContext.path.trim()) {
+      return dllContext.path.trim();
+    }
+
     return context.value?.path.trim() || '';
   }
 
@@ -195,4 +203,12 @@ function isCustomFps(value: number): boolean {
 
 function normalizeVsyncCount(value: number): GameSettingsVsyncValue {
   return value === 0 || value === 1 ? value : -1;
+}
+
+function isSamePath(left?: string | null, right?: string | null): boolean {
+  return normalizePathForCompare(left) === normalizePathForCompare(right);
+}
+
+function normalizePathForCompare(value?: string | null): string {
+  return (value ?? '').trim().replace(/\//g, '\\').toLowerCase();
 }
