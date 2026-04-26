@@ -10,9 +10,12 @@ use std::collections::VecDeque;
 use std::fs;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
+use std::thread::JoinHandle;
+use std::time::Duration;
 use tiny_http::{Method, Request, Response, Server, StatusCode};
+use url::Url;
 
 const MAX_LOG_LINES: usize = 600;
 pub const DEFAULT_RECEIVER_LISTEN_ADDR: &str = "127.0.0.1:4693";
@@ -55,12 +58,47 @@ pub struct ReceiverRuntimeInfo {
     pub source: ReceiverListenAddrSource,
 }
 
+pub struct EmbeddedReceiverHandle {
+    stop_requested: Arc<AtomicBool>,
+    server: Arc<Server>,
+    join_handle: Option<JoinHandle<()>>,
+}
+
+impl EmbeddedReceiverHandle {
+    pub fn stop(mut self) {
+        self.stop_requested.store(true, Ordering::Relaxed);
+        self.server.unblock();
+
+        let join_handle = self.join_handle.take();
+        drop(self.server);
+
+        if let Some(handle) = join_handle {
+            let _ = handle.join();
+        }
+    }
+}
+
+pub struct StartedEmbeddedReceiver {
+    pub runtime: ReceiverRuntimeInfo,
+    pub handle: Option<EmbeddedReceiverHandle>,
+}
+
 pub fn start_embedded_receiver() -> String {
     start_embedded_receiver_with_runtime().status
 }
 
 pub fn start_embedded_receiver_with_runtime() -> ReceiverRuntimeInfo {
+    start_embedded_receiver_managed().runtime
+}
+
+pub fn start_embedded_receiver_managed() -> StartedEmbeddedReceiver {
     let resolution = resolve_receiver_listen_addr(None);
+    start_embedded_receiver_with_resolution(resolution)
+}
+
+pub fn start_embedded_receiver_with_resolution(
+    resolution: ReceiverListenAddrResolution,
+) -> StartedEmbeddedReceiver {
     log_info(format!(
         "准备启动内置接收器: {} (source={} configured={})",
         resolution.listen_addr,
@@ -76,7 +114,10 @@ pub fn start_embedded_receiver_with_runtime() -> ReceiverRuntimeInfo {
             e
         );
         log_error(&msg);
-        return build_runtime_info(&resolution, false, msg);
+        return StartedEmbeddedReceiver {
+            runtime: build_runtime_info(&resolution, false, msg),
+            handle: None,
+        };
     }
 
     let server = match Server::http(&resolution.listen_addr) {
@@ -84,18 +125,47 @@ pub fn start_embedded_receiver_with_runtime() -> ReceiverRuntimeInfo {
         Err(e) => {
             let msg = format!("启动失败: 监听 {} 失败 ({})", resolution.listen_addr, e);
             log_error(&msg);
-            return build_runtime_info(&resolution, false, msg);
+            return StartedEmbeddedReceiver {
+                runtime: build_runtime_info(&resolution, false, msg),
+                handle: None,
+            };
         }
     };
 
+    let server = Arc::new(server);
+    let stop_requested = Arc::new(AtomicBool::new(false));
     let output_dir_for_thread = output_dir.clone();
     let addr_for_thread = resolution.listen_addr.clone();
     let listen_addr_for_thread = resolution.listen_addr.clone();
-    std::thread::spawn(move || {
+    let server_for_thread = Arc::clone(&server);
+    let stop_requested_for_thread = Arc::clone(&stop_requested);
+    let join_handle = std::thread::spawn(move || {
         log_info(format!("内置接收器已启动: {}", addr_for_thread));
-        for request in server.incoming_requests() {
-            handle_request(request, &output_dir_for_thread, &listen_addr_for_thread);
+        loop {
+            if stop_requested_for_thread.load(Ordering::Relaxed) {
+                break;
+            }
+
+            match server_for_thread.recv_timeout(Duration::from_millis(200)) {
+                Ok(Some(request)) => {
+                    handle_request(request, &output_dir_for_thread, &listen_addr_for_thread);
+                }
+                Ok(None) => {}
+                Err(error) => {
+                    if stop_requested_for_thread.load(Ordering::Relaxed) {
+                        break;
+                    }
+
+                    log_warn(format!(
+                        "内置接收器监听循环退出: addr={} error={}",
+                        listen_addr_for_thread, error
+                    ));
+                    break;
+                }
+            }
         }
+
+        log_info(format!("内置接收器已停止: {}", listen_addr_for_thread));
     });
 
     let msg = format!(
@@ -104,7 +174,14 @@ pub fn start_embedded_receiver_with_runtime() -> ReceiverRuntimeInfo {
         output_dir.display()
     );
     log_info(&msg);
-    build_runtime_info(&resolution, true, msg)
+    StartedEmbeddedReceiver {
+        runtime: build_runtime_info(&resolution, true, msg),
+        handle: Some(EmbeddedReceiverHandle {
+            stop_requested,
+            server,
+            join_handle: Some(join_handle),
+        }),
+    }
 }
 
 pub fn snapshot_logs(limit: usize) -> Vec<String> {
@@ -140,6 +217,10 @@ pub fn parse_receiver_listen_addr(listen_addr: &str) -> Option<(String, u16)> {
     let (host, port) = normalized.rsplit_once(':')?;
     let port = port.parse::<u16>().ok()?;
     Some((host.to_string(), port))
+}
+
+pub fn normalize_receiver_listen_addr_input(value: &str) -> Option<String> {
+    normalize_listen_addr(Some(value))
 }
 
 fn handle_request(mut request: Request, output_dir: &Path, self_listen_addr: &str) {
@@ -189,6 +270,30 @@ fn handle_request(mut request: Request, output_dir: &Path, self_listen_addr: &st
                         "社团Fans 失败: route={} error={}",
                         prepared.route, error
                     ));
+                }
+
+                // 种马/玩家数据输出日志
+                if let Some(ref stallion) = prepared.stallion_output {
+                    if let Some(path) = stallion.stallion_data_path.as_ref() {
+                        log_info(format!(
+                            "种马数据输出: route={} output={}",
+                            prepared.route,
+                            path.display()
+                        ));
+                    }
+                    if let Some(path) = stallion.player_profile_path.as_ref() {
+                        log_info(format!(
+                            "玩家资料输出: route={} output={}",
+                            prepared.route,
+                            path.display()
+                        ));
+                    }
+                    if let Some(error) = stallion.error.as_ref() {
+                        log_warn(format!(
+                            "种马/玩家输出失败: route={} error={}",
+                            prepared.route, error
+                        ));
+                    }
                 }
 
                 let wrapper = json!({
@@ -320,11 +425,34 @@ fn resolve_receiver_listen_addr_with_inputs(
 
 fn normalize_listen_addr(value: Option<&str>) -> Option<String> {
     let value = value?.trim();
+    if value.is_empty() {
+        return None;
+    }
+
+    if let Some(normalized) = normalize_listen_addr_from_url(value) {
+        return Some(normalized);
+    }
+
     let (host, port) = value.rsplit_once(':')?;
     let host = host.trim();
     let port = port.trim().parse::<u16>().ok()?;
 
     if host.is_empty() || port == 0 || !is_valid_listen_host(host) {
+        return None;
+    }
+
+    Some(format!("{}:{}", host, port))
+}
+
+fn normalize_listen_addr_from_url(value: &str) -> Option<String> {
+    let url = Url::parse(value).ok()?;
+    if !matches!(url.scheme(), "http" | "https") {
+        return None;
+    }
+
+    let host = url.host_str()?;
+    let port = url.port()?;
+    if !is_valid_listen_host(host) {
         return None;
     }
 
@@ -403,8 +531,9 @@ fn hms_now() -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        clear_logs, parse_receiver_listen_addr, push_log, resolve_receiver_listen_addr_with_inputs,
-        snapshot_logs, ReceiverListenAddrSource, DEFAULT_RECEIVER_LISTEN_ADDR, MAX_LOG_LINES,
+        clear_logs, normalize_receiver_listen_addr_input, parse_receiver_listen_addr, push_log,
+        resolve_receiver_listen_addr_with_inputs, snapshot_logs, ReceiverListenAddrSource,
+        DEFAULT_RECEIVER_LISTEN_ADDR, MAX_LOG_LINES,
     };
 
     #[test]
@@ -449,6 +578,14 @@ mod tests {
             config_resolution.source,
             ReceiverListenAddrSource::ExeConfig
         );
+
+        let url_resolution = resolve_receiver_listen_addr_with_inputs(
+            None,
+            None,
+            "http://127.0.0.1:4901/receiver",
+        );
+        assert_eq!(url_resolution.listen_addr, "127.0.0.1:4901");
+        assert_eq!(url_resolution.source, ReceiverListenAddrSource::ExeConfig);
     }
 
     #[test]
@@ -470,6 +607,23 @@ mod tests {
             parse_receiver_listen_addr("localhost:4700"),
             Some(("localhost".to_string(), 4700))
         );
+        assert_eq!(
+            parse_receiver_listen_addr("http://127.0.0.1:4692/listen"),
+            Some(("127.0.0.1".to_string(), 4692))
+        );
         assert_eq!(parse_receiver_listen_addr("bad-host:4700"), None);
+    }
+
+    #[test]
+    fn normalize_receiver_listen_addr_input_should_accept_http_url() {
+        assert_eq!(
+            normalize_receiver_listen_addr_input("http://127.0.0.1:4692"),
+            Some("127.0.0.1:4692".to_string())
+        );
+        assert_eq!(
+            normalize_receiver_listen_addr_input("https://localhost:4692/path"),
+            Some("localhost:4692".to_string())
+        );
+        assert_eq!(normalize_receiver_listen_addr_input("http://bad-host:4692"), None);
     }
 }

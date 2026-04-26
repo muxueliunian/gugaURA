@@ -29,6 +29,7 @@ pub struct PreparedReceiverPayload {
     pub file_path: PathBuf,
     pub fans_output_path: Option<PathBuf>,
     pub fans_error: Option<String>,
+    pub stallion_output: Option<crate::stallion_output::StallionOutputResult>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -111,6 +112,26 @@ where
         (None, None)
     };
 
+    // 种马/玩家数据输出
+    let stallion_output = {
+        let settings = crate::stallion_output::resolve_stallion_output_settings();
+        if settings.enabled {
+            let result = crate::stallion_output::extract_and_write(
+                &payload,
+                &direction,
+                route,
+                &settings.output_dir,
+            );
+            if result.stallion_data_path.is_some() || result.player_profile_path.is_some() || result.error.is_some() {
+                Some(result)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    };
+
     Ok(ReceiverProcessOutcome::Saved(PreparedReceiverPayload {
         route: route.to_string(),
         direction,
@@ -120,6 +141,7 @@ where
         file_path,
         fans_output_path,
         fans_error,
+        stallion_output,
     }))
 }
 

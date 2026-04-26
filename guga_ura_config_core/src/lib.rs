@@ -6,3 +6,4 @@ pub mod embedded_dlls;
 pub mod installer;
 pub mod receiver;
 pub mod receiver_pipeline;
+pub mod stallion_output;

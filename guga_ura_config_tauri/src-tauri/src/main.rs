@@ -9,7 +9,7 @@ mod state;
 use guga_ura_config_core::receiver;
 
 fn main() {
-    let receiver_runtime = receiver::start_embedded_receiver_with_runtime();
+    let receiver_runtime = receiver::start_embedded_receiver_managed();
 
     tauri::Builder::default()
         .manage(state::AppState::new(receiver_runtime))

@@ -24,6 +24,7 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
   const settingsLoading = ref(false);
   const settingsSaving = ref(false);
   const browseFansDirLoading = ref(false);
+  const browseStallionDirLoading = ref(false);
   const hasInitialized = ref(false);
   const lastUpdatedAt = ref<number | null>(null);
 
@@ -33,6 +34,8 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
     relayTargetHost: '',
     fansEnabled: true,
     fansOutputDir: '',
+    stallionOutputEnabled: true,
+    stallionOutputDir: '',
   });
 
   let pendingRuntimeLoad: Promise<TerminalSnapshot | null> | null = null;
@@ -45,6 +48,8 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
     form.relayTargetHost = nextSettings.relayTargetHost;
     form.fansEnabled = nextSettings.fansEnabled;
     form.fansOutputDir = nextSettings.fansOutputDir;
+    form.stallionOutputEnabled = nextSettings.stallionOutputEnabled;
+    form.stallionOutputDir = nextSettings.stallionOutputDir;
   }
 
   async function initialize(force = false): Promise<void> {
@@ -133,6 +138,7 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
     try {
       const result = await saveReceiverRuntimeSettings(input);
       applySettings(result.settings);
+      await refreshRuntimeSummary();
       return result;
     } catch (error) {
       lastError.value = resolveCommandError(error, '保存接收与转发配置失败');
@@ -159,6 +165,23 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
     }
   }
 
+  async function browseStallionOutputDirectory(): Promise<string | null> {
+    browseStallionDirLoading.value = true;
+
+    try {
+      const pickedPath = await pickReceiverDirectory('选择种马数据输出目录');
+      if (pickedPath) {
+        form.stallionOutputDir = pickedPath;
+      }
+      return pickedPath;
+    } catch (error) {
+      lastError.value = resolveCommandError(error, '选择种马数据输出目录失败');
+      return null;
+    } finally {
+      browseStallionDirLoading.value = false;
+    }
+  }
+
   function clearError(): void {
     lastError.value = '';
   }
@@ -180,6 +203,8 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
       relayTargetHost: form.relayTargetHost.trim(),
       fansEnabled: form.fansEnabled,
       fansOutputDir: form.fansOutputDir.trim(),
+      stallionOutputEnabled: form.stallionOutputEnabled,
+      stallionOutputDir: form.stallionOutputDir.trim(),
     };
   }
 
@@ -206,6 +231,12 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
   );
   const fansOutputDirDisplay = computed(
     () => form.fansOutputDir.trim() || settings.value?.fansOutputDir || '默认: EXE 同级 fans/',
+  );
+  const stallionOutputDirDisplay = computed(
+    () =>
+      form.stallionOutputDir.trim()
+      || settings.value?.stallionOutputDir
+      || '默认: EXE 同级 stallion_output/',
   );
 
   const receiverListenAddrError = computed(() => {
@@ -261,6 +292,8 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
   return {
     browseFansDirLoading,
     browseFansOutputDirectory,
+    browseStallionDirLoading,
+    browseStallionOutputDirectory,
     clearError,
     configuredListenAddr,
     fansOutputDirDisplay,
@@ -285,5 +318,6 @@ export const useReceiverConfigStore = defineStore('receiverConfig', () => {
     settings,
     settingsLoading,
     settingsSaving,
+    stallionOutputDirDisplay,
   };
 });

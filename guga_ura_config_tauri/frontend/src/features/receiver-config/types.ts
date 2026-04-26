@@ -4,6 +4,8 @@ export interface ReceiverRuntimeSettings {
   relayTargetHost: string;
   fansEnabled: boolean;
   fansOutputDir: string;
+  stallionOutputEnabled: boolean;
+  stallionOutputDir: string;
 }
 
 export interface SaveReceiverRuntimeSettingsInput {
@@ -12,6 +14,8 @@ export interface SaveReceiverRuntimeSettingsInput {
   relayTargetHost: string;
   fansEnabled: boolean;
   fansOutputDir: string;
+  stallionOutputEnabled: boolean;
+  stallionOutputDir: string;
 }
 
 export interface ReceiverRuntimeSettingsActionResult {

@@ -19,6 +19,8 @@ export async function saveReceiverRuntimeSettings(
       relayTargetHost: input.relayTargetHost || null,
       fansEnabled: input.fansEnabled,
       fansOutputDir: input.fansOutputDir || null,
+      stallionOutputEnabled: input.stallionOutputEnabled,
+      stallionOutputDir: input.stallionOutputDir || null,
     },
   });
 }

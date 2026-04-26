@@ -129,6 +129,8 @@ pub struct ReceiverRuntimeSettingsDto {
     pub relay_target_host: String,
     pub fans_enabled: bool,
     pub fans_output_dir: String,
+    pub stallion_output_enabled: bool,
+    pub stallion_output_dir: String,
 }
 
 /// Receiver 运行时设置保存输入
@@ -140,6 +142,8 @@ pub struct SaveReceiverRuntimeSettingsInput {
     pub relay_target_host: Option<String>,
     pub fans_enabled: bool,
     pub fans_output_dir: Option<String>,
+    pub stallion_output_enabled: bool,
+    pub stallion_output_dir: Option<String>,
 }
 
 /// Receiver 运行时设置动作返回
@@ -205,12 +209,14 @@ pub fn get_terminal_snapshot(
     state: State<'_, AppState>,
     limit: Option<usize>,
 ) -> TerminalSnapshotDto {
+    let runtime = state.receiver_runtime();
+
     TerminalSnapshotDto {
-        receiver_ready: state.receiver_ready(),
-        receiver_status: state.receiver_status().to_string(),
-        receiver_listen_addr: state.receiver_listen_addr().to_string(),
-        receiver_configured_listen_addr: state.receiver_configured_listen_addr().to_string(),
-        receiver_listen_addr_source: state.receiver_listen_addr_source().to_string(),
+        receiver_ready: runtime.ready,
+        receiver_status: runtime.status,
+        receiver_listen_addr: runtime.listen_addr,
+        receiver_configured_listen_addr: runtime.configured_listen_addr,
+        receiver_listen_addr_source: runtime.source.as_str().to_string(),
         logs: receiver::snapshot_logs(limit.unwrap_or(600)),
     }
 }
@@ -286,15 +292,17 @@ pub fn save_dll_injection_config(
 /// 保存 Receiver 运行时设置
 #[tauri::command]
 pub fn save_receiver_runtime_settings(
+    state: State<'_, AppState>,
     input: SaveReceiverRuntimeSettingsInput,
 ) -> Result<ReceiverRuntimeSettingsActionResultDto, String> {
     let mut config = Config::load_from_exe_dir();
     apply_receiver_runtime_fields(&mut config, &input)?;
     config.save_to_exe_dir()?;
+    let notice = hot_reload_receiver_runtime(state.inner());
 
     Ok(ReceiverRuntimeSettingsActionResultDto {
         settings: build_receiver_runtime_settings(),
-        notice: "Receiver 设置已保存，重启配置工具后生效".to_string(),
+        notice,
     })
 }
 
@@ -510,11 +518,16 @@ fn build_receiver_runtime_settings() -> ReceiverRuntimeSettingsDto {
 
 fn build_receiver_runtime_settings_from_config(config: &Config) -> ReceiverRuntimeSettingsDto {
     ReceiverRuntimeSettingsDto {
-        receiver_listen_addr: config.receiver_listen_addr.trim().to_string(),
+        receiver_listen_addr: receiver::normalize_receiver_listen_addr_input(
+            &config.receiver_listen_addr,
+        )
+        .unwrap_or_else(|| config.receiver_listen_addr.trim().to_string()),
         relay_enabled: config.relay_enabled,
         relay_target_host: resolve_relay_target_host(config),
         fans_enabled: config.fans_enabled,
         fans_output_dir: resolve_fans_output_dir(config),
+        stallion_output_enabled: config.stallion_output_enabled,
+        stallion_output_dir: resolve_stallion_output_dir(config),
     }
 }
 
@@ -594,6 +607,22 @@ fn load_effective_config(game_dir: Option<&Path>) -> Config {
     let game_config_has_fans_enabled = Config::game_config_has_key(path, "fans_enabled");
     let mut config = Config::load_from(path);
 
+    backfill_exe_side_receiver_fields(
+        &mut config,
+        exe_config,
+        game_config_exists,
+        game_config_has_fans_enabled,
+    );
+
+    config
+}
+
+fn backfill_exe_side_receiver_fields(
+    config: &mut Config,
+    exe_config: Config,
+    game_config_exists: bool,
+    game_config_has_fans_enabled: bool,
+) {
     if !game_config_exists || !game_config_has_fans_enabled {
         config.fans_enabled = exe_config.fans_enabled;
     }
@@ -607,7 +636,8 @@ fn load_effective_config(game_dir: Option<&Path>) -> Config {
         config.fans_output_dir = exe_config.fans_output_dir;
     }
 
-    config
+    config.stallion_output_enabled = exe_config.stallion_output_enabled;
+    config.stallion_output_dir = exe_config.stallion_output_dir;
 }
 
 fn apply_dll_injection_fields(
@@ -650,18 +680,14 @@ fn apply_receiver_runtime_fields(
         return Err("监听地址不能为空".to_string());
     }
 
-    let Some((host_part, port_part)) = receiver_listen_addr.rsplit_once(':') else {
-        return Err("监听地址必须使用 host:port 格式".to_string());
+    let Some(receiver_listen_addr) =
+        receiver::normalize_receiver_listen_addr_input(receiver_listen_addr)
+    else {
+        return Err(
+            "监听地址必须使用 host:port 格式，host 仅支持 localhost 或 IP；也可填写 http://host:port"
+                .to_string(),
+        );
     };
-
-    if host_part.trim().is_empty() {
-        return Err("监听地址缺少 host".to_string());
-    }
-
-    port_part
-        .trim()
-        .parse::<u16>()
-        .map_err(|_| "监听地址端口必须是 1-65535 的整数".to_string())?;
 
     let relay_target_host = normalize_optional_input(input.relay_target_host.as_deref());
     if let Some(target) = relay_target_host.as_deref() {
@@ -670,7 +696,7 @@ fn apply_receiver_runtime_fields(
         }
 
         if input.relay_enabled
-            && receiver_pipeline::relay_target_would_loop(receiver_listen_addr, target)
+            && receiver_pipeline::relay_target_would_loop(&receiver_listen_addr, target)
         {
             return Err("Relay 目标地址不能指向当前 Receiver 自身".to_string());
         }
@@ -686,7 +712,62 @@ fn apply_receiver_runtime_fields(
         fans_output_dir.unwrap_or_else(|| resolve_default_fans_output_dir().display().to_string()),
     );
 
+    let stallion_output_dir = normalize_optional_input(input.stallion_output_dir.as_deref());
+    config.stallion_output_enabled = input.stallion_output_enabled;
+    config.stallion_output_dir = Some(stallion_output_dir.unwrap_or_else(|| {
+        guga_ura_config_core::stallion_output::default_stallion_output_dir()
+            .display()
+            .to_string()
+    }));
+
     Ok(())
+}
+
+fn hot_reload_receiver_runtime(state: &AppState) -> String {
+    let current_runtime = state.receiver_runtime();
+    let target_resolution = receiver::resolve_receiver_listen_addr(None);
+    let should_restart =
+        !current_runtime.ready || current_runtime.listen_addr != target_resolution.listen_addr;
+
+    if !should_restart {
+        let mut updated_runtime = current_runtime;
+        updated_runtime.configured_listen_addr = target_resolution.configured_listen_addr;
+        updated_runtime.source = target_resolution.source;
+        state.update_receiver_runtime(updated_runtime);
+        return "Receiver 设置已保存；监听地址保持不变，后续请求将直接使用新配置".to_string();
+    }
+
+    let next_receiver = receiver::start_embedded_receiver_with_resolution(target_resolution);
+    if next_receiver.runtime.ready {
+        let old_handle = state.replace_receiver(next_receiver);
+        if let Some(handle) = old_handle {
+            handle.stop();
+        }
+
+        let runtime = state.receiver_runtime();
+        return format!(
+            "Receiver 设置已保存；监听地址已热更新到 {}",
+            runtime.listen_addr
+        );
+    }
+
+    if current_runtime.ready {
+        let mut preserved_runtime = current_runtime.clone();
+        preserved_runtime.configured_listen_addr =
+            next_receiver.runtime.configured_listen_addr.clone();
+        preserved_runtime.source = next_receiver.runtime.source;
+        state.update_receiver_runtime(preserved_runtime);
+        return format!(
+            "Receiver 设置已保存，但热更新失败（{}）；当前仍监听 {}，重启后会按新配置接管",
+            next_receiver.runtime.status, current_runtime.listen_addr
+        );
+    }
+
+    state.update_receiver_runtime(next_receiver.runtime.clone());
+    format!(
+        "Receiver 设置已保存，但当前 Receiver 尚未启动成功（{}）",
+        next_receiver.runtime.status
+    )
 }
 
 fn apply_debug_mode_field(config: &mut Config, debug_mode: bool) {
@@ -771,6 +852,19 @@ fn resolve_relay_target_host(config: &Config) -> String {
         .unwrap_or_default()
 }
 
+fn resolve_stallion_output_dir(config: &Config) -> String {
+    config
+        .stallion_output_dir
+        .as_ref()
+        .filter(|value| !value.trim().is_empty())
+        .cloned()
+        .unwrap_or_else(|| {
+            guga_ura_config_core::stallion_output::default_stallion_output_dir()
+                .display()
+                .to_string()
+        })
+}
+
 fn normalize_optional_input(value: Option<&str>) -> Option<String> {
     value
         .map(str::trim)
@@ -781,8 +875,8 @@ fn normalize_optional_input(value: Option<&str>) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        apply_receiver_runtime_fields, build_receiver_runtime_settings_from_config,
-        SaveReceiverRuntimeSettingsInput,
+        apply_receiver_runtime_fields, backfill_exe_side_receiver_fields,
+        build_receiver_runtime_settings_from_config, SaveReceiverRuntimeSettingsInput,
     };
     use guga_ura_config_core::config::Config;
 
@@ -790,11 +884,13 @@ mod tests {
     fn apply_receiver_runtime_fields_should_update_exe_side_settings() {
         let mut config = Config::default();
         let input = SaveReceiverRuntimeSettingsInput {
-            receiver_listen_addr: "127.0.0.1:4700".to_string(),
+            receiver_listen_addr: "http://127.0.0.1:4700/runtime".to_string(),
             relay_enabled: true,
             relay_target_host: Some("http://127.0.0.1:4800".to_string()),
             fans_enabled: false,
             fans_output_dir: Some("C:\\temp\\fans".to_string()),
+            stallion_output_enabled: true,
+            stallion_output_dir: Some("C:\\temp\\stallion".to_string()),
         };
 
         apply_receiver_runtime_fields(&mut config, &input).expect("Receiver 设置保存失败");
@@ -807,22 +903,79 @@ mod tests {
         );
         assert!(!config.fans_enabled);
         assert_eq!(config.fans_output_dir.as_deref(), Some("C:\\temp\\fans"));
+        assert!(config.stallion_output_enabled);
+        assert_eq!(
+            config.stallion_output_dir.as_deref(),
+            Some("C:\\temp\\stallion")
+        );
+    }
+
+    #[test]
+    fn backfill_exe_side_receiver_fields_should_preserve_exe_stallion_runtime_settings() {
+        let mut game_config = Config {
+            fans_enabled: true,
+            fans_output_dir: Some("C:\\game\\fans".to_string()),
+            stallion_output_enabled: true,
+            stallion_output_dir: Some("C:\\game\\stallion".to_string()),
+            ..Config::default()
+        };
+        let exe_config = Config {
+            fans_enabled: false,
+            fans_output_dir: Some("C:\\exe\\fans".to_string()),
+            stallion_output_enabled: false,
+            stallion_output_dir: Some("C:\\exe\\stallion".to_string()),
+            ..Config::default()
+        };
+
+        backfill_exe_side_receiver_fields(&mut game_config, exe_config, true, true);
+
+        assert!(game_config.fans_enabled);
+        assert_eq!(
+            game_config.fans_output_dir.as_deref(),
+            Some("C:\\game\\fans")
+        );
+        assert!(!game_config.stallion_output_enabled);
+        assert_eq!(
+            game_config.stallion_output_dir.as_deref(),
+            Some("C:\\exe\\stallion")
+        );
+    }
+
+    #[test]
+    fn backfill_exe_side_receiver_fields_should_use_exe_stallion_defaults() {
+        let mut game_config = Config {
+            stallion_output_enabled: true,
+            stallion_output_dir: Some("C:\\game\\stallion".to_string()),
+            ..Config::default()
+        };
+        let exe_config = Config {
+            stallion_output_enabled: false,
+            stallion_output_dir: None,
+            ..Config::default()
+        };
+
+        backfill_exe_side_receiver_fields(&mut game_config, exe_config, true, true);
+
+        assert!(!game_config.stallion_output_enabled);
+        assert_eq!(game_config.stallion_output_dir, None);
     }
 
     #[test]
     fn apply_receiver_runtime_fields_should_reject_invalid_inputs() {
         let mut config = Config::default();
         let invalid_listen = SaveReceiverRuntimeSettingsInput {
-            receiver_listen_addr: "127.0.0.1".to_string(),
+            receiver_listen_addr: "ftp://127.0.0.1:4700".to_string(),
             relay_enabled: false,
             relay_target_host: None,
             fans_enabled: true,
             fans_output_dir: None,
+            stallion_output_enabled: true,
+            stallion_output_dir: None,
         };
 
         let listen_error = apply_receiver_runtime_fields(&mut config, &invalid_listen)
             .expect_err("应拒绝非法监听地址");
-        assert!(listen_error.contains("host:port"));
+        assert!(listen_error.contains("localhost 或 IP"));
 
         let invalid_relay = SaveReceiverRuntimeSettingsInput {
             receiver_listen_addr: "127.0.0.1:4700".to_string(),
@@ -830,6 +983,8 @@ mod tests {
             relay_target_host: Some("127.0.0.1:4800".to_string()),
             fans_enabled: true,
             fans_output_dir: None,
+            stallion_output_enabled: true,
+            stallion_output_dir: None,
         };
 
         let relay_error = apply_receiver_runtime_fields(&mut config, &invalid_relay)
@@ -842,6 +997,8 @@ mod tests {
             relay_target_host: Some("http://localhost:4700/api".to_string()),
             fans_enabled: true,
             fans_output_dir: None,
+            stallion_output_enabled: true,
+            stallion_output_dir: None,
         };
 
         let self_loop_error = apply_receiver_runtime_fields(&mut config, &self_loop_relay)

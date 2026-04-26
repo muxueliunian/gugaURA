@@ -209,6 +209,19 @@ fn save_payload_as_json(
                 warn!("Fans aggregate failed on route {}: {}", route, error);
             }
 
+            // 种马/玩家数据输出日志
+            if let Some(ref stallion) = prepared.stallion_output {
+                if let Some(path) = stallion.stallion_data_path.as_ref() {
+                    info!("Stallion data output: {}", path.display());
+                }
+                if let Some(path) = stallion.player_profile_path.as_ref() {
+                    info!("Player profile output: {}", path.display());
+                }
+                if let Some(error) = stallion.error.as_ref() {
+                    warn!("Stallion output failed on route {}: {}", route, error);
+                }
+            }
+
             let wrapped = json!({
                 "direction": prepared.direction,
                 "route": prepared.route,

@@ -3,7 +3,7 @@
     <PageHeader
       eyebrow="接收与转发"
       title="接收&转发配置"
-      description="负责 Receiver 监听、Relay 二次转发和社团Fans设置；保存后下次启动配置工具生效。"
+      description="负责 Receiver 监听、Relay 二次转发和社团Fans设置；保存后会立即尝试热更新监听。"
     >
       <template #actions>
         <el-button
@@ -42,7 +42,7 @@
       <InfoCard
         label="配置监听地址"
         :value="configuredListenAddr"
-        description="保存后下次启动配置工具生效。"
+        description="保存后会立即尝试热更新。"
       />
       <InfoCard label="Relay 状态">
         <StatusBadge
@@ -105,7 +105,7 @@
                 placeholder="127.0.0.1:4693"
               />
               <p class="receiver-config-page__field-hint">
-                Receiver 在本地监听 DLL 发来的数据；这里保存的是下次启动配置工具时要绑定的 host:port。
+                Receiver 在本地监听 DLL 发来的数据；这里填写的是要立即绑定的监听地址，支持 `host:port` 和 `http://host:port`。
               </p>
             </el-form-item>
 
@@ -181,8 +181,51 @@
         </SectionCard>
 
         <SectionCard
+          title="种马/玩家数据输出"
+          description="拦截个人主页响应后自动提取种馬数据与玩家档案，输出为独立 JSON 文件。"
+        >
+          <el-form label-position="top">
+            <el-form-item label="种马数据输出">
+              <div class="receiver-config-page__switch-row">
+                <el-switch
+                  v-model="form.stallionOutputEnabled"
+                  inline-prompt
+                  active-text="开"
+                  inactive-text="关"
+                />
+                <span>开启后自动输出 stallion_data 和 player_profile JSON 文件。</span>
+              </div>
+            </el-form-item>
+
+            <el-form-item label="种马数据输出目录">
+              <div class="receiver-config-page__path-bar">
+                <el-input
+                  v-model="form.stallionOutputDir"
+                  :disabled="!form.stallionOutputEnabled"
+                  placeholder="默认: EXE 同级 stallion_output/"
+                />
+                <el-button
+                  :disabled="!form.stallionOutputEnabled"
+                  :loading="browseStallionDirLoading"
+                  @click="handleBrowseStallionDir"
+                >
+                  选择目录
+                </el-button>
+              </div>
+              <p class="receiver-config-page__field-hint">
+                {{
+                  form.stallionOutputEnabled
+                    ? `当前保存目录：${stallionOutputDirDisplay}`
+                    : '关闭后会保留配置值，但当前运行不会输出种馬/玩家数据。'
+                }}
+              </p>
+            </el-form-item>
+          </el-form>
+        </SectionCard>
+
+        <SectionCard
           title="保存操作"
-          description="当前运行实例不会立即切换监听参数；保存后的配置会在下次启动配置工具时生效。"
+          description="保存后会立即尝试热更新监听参数；Relay、Fans 与种马输出会直接读取最新配置。"
         >
           <div class="receiver-config-page__action-row">
             <el-button
@@ -235,6 +278,7 @@ defineOptions({ name: 'ReceiverConfigPage' });
 const receiverConfigStore = useReceiverConfigStore();
 const {
   browseFansDirLoading,
+  browseStallionDirLoading,
   configuredListenAddr,
   fansOutputDirDisplay,
   form,
@@ -252,6 +296,7 @@ const {
   saveSettingsDisabledReason,
   settingsLoading,
   settingsSaving,
+  stallionOutputDirDisplay,
 } = storeToRefs(receiverConfigStore);
 
 const pageError = computed(() => lastError.value);
@@ -284,11 +329,11 @@ const runtimeEffectHint = computed(() => {
     return '正在读取当前运行实例状态。';
   }
 
-  return '当前运行实例继续沿用启动时配置；保存后的新配置会在下次启动配置工具时接管。';
+  return '监听地址保存后会立即尝试重绑；Relay、Fans 与种马输出会按最新配置处理后续请求。';
 });
 const operationHint = computed(
   () =>
-    `当前保存值：监听 ${configuredListenAddr.value}；Relay ${form.value.relayEnabled ? '开启' : '关闭'}；Fans ${form.value.fansEnabled ? '开启' : '关闭'}。`,
+    `当前保存值：监听 ${configuredListenAddr.value}；Relay ${form.value.relayEnabled ? '开启' : '关闭'}；Fans ${form.value.fansEnabled ? '开启' : '关闭'}；种马输出 ${form.value.stallionOutputEnabled ? '开启' : '关闭'}。`,
 );
 const lastUpdatedLabel = computed(() => {
   if (!lastUpdatedAt.value) {
@@ -323,6 +368,10 @@ async function handleSaveSettings(): Promise<void> {
 
 async function handleBrowseFansDir(): Promise<void> {
   await receiverConfigStore.browseFansOutputDirectory();
+}
+
+async function handleBrowseStallionDir(): Promise<void> {
+  await receiverConfigStore.browseStallionOutputDirectory();
 }
 
 function handleClearError(): void {

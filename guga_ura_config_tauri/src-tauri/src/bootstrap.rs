@@ -18,13 +18,15 @@ pub struct BootstrapStateDto {
 impl BootstrapStateDto {
     /// 基于共享状态创建启动信息
     pub fn from_state(app_version: &str, state: &AppState) -> Self {
+        let runtime = state.receiver_runtime();
+
         Self {
             app_version: app_version.to_string(),
-            receiver_ready: state.receiver_ready(),
-            receiver_status: state.receiver_status().to_string(),
-            receiver_listen_addr: state.receiver_listen_addr().to_string(),
-            receiver_configured_listen_addr: state.receiver_configured_listen_addr().to_string(),
-            receiver_listen_addr_source: state.receiver_listen_addr_source().to_string(),
+            receiver_ready: runtime.ready,
+            receiver_status: runtime.status,
+            receiver_listen_addr: runtime.listen_addr,
+            receiver_configured_listen_addr: runtime.configured_listen_addr,
+            receiver_listen_addr_source: runtime.source.as_str().to_string(),
         }
     }
 }

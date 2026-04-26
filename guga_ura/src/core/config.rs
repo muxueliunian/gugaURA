@@ -52,6 +52,14 @@ pub struct Config {
     /// Relay 目标地址（接收端二次转发）
     #[serde(default)]
     pub relay_target_host: Option<String>,
+
+    /// 种马/玩家数据输出开关（接收端处理）
+    #[serde(default = "Config::default_stallion_output_enabled")]
+    pub stallion_output_enabled: bool,
+
+    /// 种马/玩家数据输出目录（绝对路径优先，接收端使用）
+    #[serde(default)]
+    pub stallion_output_dir: Option<String>,
 }
 
 impl Config {
@@ -81,6 +89,10 @@ impl Config {
 
     fn default_relay_enabled() -> bool {
         false
+    }
+
+    fn default_stallion_output_enabled() -> bool {
+        true
     }
 
     /// 获取配置文件路径
@@ -186,6 +198,8 @@ impl Default for Config {
             fans_enabled: Self::default_fans_enabled(),
             relay_enabled: Self::default_relay_enabled(),
             relay_target_host: None,
+            stallion_output_enabled: Self::default_stallion_output_enabled(),
+            stallion_output_dir: None,
         }
     }
 }
