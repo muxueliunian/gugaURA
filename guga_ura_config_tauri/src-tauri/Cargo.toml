@@ -1,6 +1,6 @@
 [package]
 name = "guga_ura_config_tauri"
-version = "2.0.3"
+version = "2.0.4"
 edition = "2021"
 description = "gugaURA Desktop Shell"
 

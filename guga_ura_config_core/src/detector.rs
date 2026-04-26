@@ -58,6 +58,16 @@ const GAME_EXE_NAMES: &[&str] = &[
     "UmamusumePrettyDerby.exe",
 ];
 
+const DMM_SCAN_MAX_DEPTH: usize = 3;
+
+const DMM_GAME_DIR_NAMES: &[&str] = &[
+    "Umapyoi",
+    "umamusume",
+    "Umamusume",
+    "Umamusume Pretty Derby",
+    "UmamusumePrettyDerby",
+];
+
 /// 检测游戏版本
 pub fn detect_game_version(game_dir: &Path) -> GameVersion {
     // 检查是否是有效的游戏目录
@@ -116,14 +126,28 @@ pub fn is_valid_game_dir(game_dir: &Path) -> bool {
 /// 辅助函数：添加游戏到列表（去重）
 fn add_game_if_new(games: &mut Vec<DetectedGame>, path: PathBuf, version: GameVersion) {
     // 规范化路径用于比较
-    let normalized = path.to_string_lossy().to_lowercase().replace("/", "\\");
-    let is_duplicate = games.iter().any(|g: &DetectedGame| {
-        g.path.to_string_lossy().to_lowercase().replace("/", "\\") == normalized
-    });
+    let normalized = normalize_path_for_compare(&path);
+    let is_duplicate = games
+        .iter()
+        .any(|g: &DetectedGame| normalize_path_for_compare(&g.path) == normalized);
 
     if !is_duplicate && is_valid_game_dir(&path) {
         games.push(DetectedGame { path, version });
     }
+}
+
+fn normalize_path_for_compare(path: &Path) -> String {
+    path.to_string_lossy().to_lowercase().replace("/", "\\")
+}
+
+fn dmm_keyword_matches(text: &str) -> bool {
+    let text = text.to_lowercase();
+    text.contains("umamusume")
+        || text.contains("uma musume")
+        || text.contains("pretty derby")
+        || text.contains("umapyoi")
+        || text.contains("ウマ娘")
+        || text.contains("プリティーダービー")
 }
 
 /// 自动扫描并检测所有已安装的游戏
@@ -304,107 +328,14 @@ fn scan_steam_games() -> Option<Vec<DetectedGame>> {
 fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
     let mut games = Vec::new();
 
+    scan_dmm_game_player_config(&mut games);
+
     #[cfg(windows)]
     {
-        use winreg::enums::*;
-        use winreg::RegKey;
-
-        // 扫描所有卸载信息
-        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-
-        let uninstall_paths = [
-            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
-            r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
-        ];
-
-        for uninstall_path in uninstall_paths {
-            if let Ok(uninstall_key) = hklm.open_subkey(uninstall_path) {
-                for name in uninstall_key.enum_keys().filter_map(Result::ok) {
-                    // 检查 key 名称是否包含相关关键词
-                    let name_lower = name.to_lowercase();
-                    let name_matches = name_lower.contains("umamusume")
-                        || name_lower.contains("uma musume")
-                        || name_lower.contains("pretty derby");
-
-                    if let Ok(app_key) = uninstall_key.open_subkey(&name) {
-                        let install_path: String = match app_key.get_value("InstallLocation") {
-                            Ok(v) => v,
-                            Err(_) => continue,
-                        };
-
-                        // 检查安装路径是否包含相关关键词
-                        let path_lower = install_path.to_lowercase();
-                        let path_matches = path_lower.contains("umamusume")
-                            || path_lower.contains("uma musume")
-                            || path_lower.contains("pretty derby")
-                            || path_lower.contains("umapyoi");
-
-                        if name_matches || path_matches {
-                            let path = PathBuf::from(&install_path);
-                            if is_valid_game_dir(&path) {
-                                let version = detect_game_version(&path);
-                                if !games.iter().any(|g: &DetectedGame| g.path == path) {
-                                    games.push(DetectedGame { path, version });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        scan_dmm_uninstall_registry(&mut games);
     }
 
-    // DMM 常见安装路径（扩展列表）
-    let dmm_paths = [
-        // DMMGames 标准路径
-        r"C:\DMMGames\Umapyoi",
-        r"C:\DMMGames\umamusume",
-        r"C:\DMMGames\Umamusume",
-        r"D:\DMMGames\Umapyoi",
-        r"D:\DMMGames\umamusume",
-        r"D:\DMMGames\Umamusume",
-        r"E:\DMMGames\Umapyoi",
-        r"E:\DMMGames\umamusume",
-        r"E:\DMMGames\Umamusume",
-        r"G:\DMMGames\Umapyoi",
-        r"G:\DMMGames\umamusume",
-        r"G:\DMMGames\Umamusume",
-        // dmm 小写目录
-        r"C:\dmm\Umapyoi",
-        r"C:\dmm\umamusume",
-        r"C:\dmm\Umamusume",
-        r"D:\dmm\Umapyoi",
-        r"D:\dmm\umamusume",
-        r"D:\dmm\Umamusume",
-        r"E:\dmm\Umapyoi",
-        r"E:\dmm\umamusume",
-        r"E:\dmm\Umamusume",
-        r"G:\dmm\Umapyoi",
-        r"G:\dmm\umamusume",
-        r"G:\dmm\Umamusume",
-        // DMM 目录
-        r"C:\DMM\Umapyoi",
-        r"C:\DMM\umamusume",
-        r"C:\DMM\Umamusume",
-        r"D:\DMM\Umapyoi",
-        r"D:\DMM\umamusume",
-        r"D:\DMM\Umamusume",
-        r"G:\DMM\Umapyoi",
-        r"G:\DMM\umamusume",
-        r"G:\DMM\Umamusume",
-    ];
-
-    for path in dmm_paths {
-        let path = PathBuf::from(path);
-        if is_valid_game_dir(&path) {
-            if !games.iter().any(|g: &DetectedGame| g.path == path) {
-                games.push(DetectedGame {
-                    path,
-                    version: GameVersion::DMM,
-                });
-            }
-        }
-    }
+    scan_common_dmm_paths(&mut games);
 
     if games.is_empty() {
         None
@@ -413,10 +344,384 @@ fn scan_dmm_games() -> Option<Vec<DetectedGame>> {
     }
 }
 
+fn scan_dmm_game_player_config(games: &mut Vec<DetectedGame>) {
+    for config_path in dmm_game_player_config_paths() {
+        let Ok(content) = std::fs::read_to_string(&config_path) else {
+            continue;
+        };
+        let Ok(config) = serde_json::from_str::<serde_json::Value>(&content) else {
+            continue;
+        };
+
+        for candidate in collect_dmm_config_candidates(&config) {
+            add_dmm_candidate_path(games, candidate);
+        }
+    }
+}
+
+fn dmm_game_player_config_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+
+    for env_name in ["APPDATA", "LOCALAPPDATA"] {
+        let Some(base) = std::env::var_os(env_name) else {
+            continue;
+        };
+        let base = PathBuf::from(base);
+        paths.push(base.join("dmmgameplayer5").join("dmmgame.cnf"));
+        paths.push(base.join("dmmgameplayer").join("dmmgame.cnf"));
+    }
+
+    paths
+}
+
+fn collect_dmm_config_candidates(config: &serde_json::Value) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+
+    if let Some(default_install_dir) = config.get("defaultInstallDir").and_then(|v| v.as_str()) {
+        push_path_candidate(&mut paths, default_install_dir);
+    }
+
+    let Some(contents) = config.get("contents").and_then(|v| v.as_array()) else {
+        return paths;
+    };
+
+    for item in contents {
+        if !dmm_config_item_matches_umamusume(item) {
+            continue;
+        }
+        if !dmm_config_item_is_installed(item) {
+            continue;
+        }
+
+        for field in ["path", "installPath", "gamePath", "directory"] {
+            if let Some(path) = item.get(field).and_then(|v| v.as_str()) {
+                push_path_candidate(&mut paths, path);
+            }
+        }
+
+        if let Some(detail) = item.get("detail") {
+            for field in ["path", "installPath", "gamePath", "directory"] {
+                if let Some(path) = detail.get(field).and_then(|v| v.as_str()) {
+                    push_path_candidate(&mut paths, path);
+                }
+            }
+        }
+    }
+
+    paths
+}
+
+fn dmm_config_item_matches_umamusume(item: &serde_json::Value) -> bool {
+    for field in ["productId", "product_id", "name", "title"] {
+        if item
+            .get(field)
+            .and_then(|v| v.as_str())
+            .is_some_and(dmm_keyword_matches)
+        {
+            return true;
+        }
+    }
+
+    if let Some(detail) = item.get("detail") {
+        for field in ["path", "installPath", "gamePath", "directory"] {
+            if detail
+                .get(field)
+                .and_then(|v| v.as_str())
+                .is_some_and(dmm_keyword_matches)
+            {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+fn dmm_config_item_is_installed(item: &serde_json::Value) -> bool {
+    if let Some(installed) = item.get("installed").and_then(|v| v.as_bool()) {
+        return installed;
+    }
+    if let Some(installed) = item
+        .get("detail")
+        .and_then(|detail| detail.get("installed"))
+        .and_then(|v| v.as_bool())
+    {
+        return installed;
+    }
+
+    true
+}
+
+#[cfg(windows)]
+fn scan_dmm_uninstall_registry(games: &mut Vec<DetectedGame>) {
+    use winreg::enums::*;
+    use winreg::RegKey;
+
+    let uninstall_paths = [
+        (
+            RegKey::predef(HKEY_LOCAL_MACHINE),
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+        ),
+        (
+            RegKey::predef(HKEY_LOCAL_MACHINE),
+            r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+        ),
+        (
+            RegKey::predef(HKEY_CURRENT_USER),
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+        ),
+        (
+            RegKey::predef(HKEY_CURRENT_USER),
+            r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+        ),
+    ];
+
+    for (root, uninstall_path) in uninstall_paths {
+        let Ok(uninstall_key) = root.open_subkey(uninstall_path) else {
+            continue;
+        };
+
+        for key_name in uninstall_key.enum_keys().filter_map(Result::ok) {
+            let Ok(app_key) = uninstall_key.open_subkey(&key_name) else {
+                continue;
+            };
+
+            let display_name = registry_string_value(&app_key, "DisplayName");
+            let publisher = registry_string_value(&app_key, "Publisher");
+            let path_values = registry_path_values(&app_key);
+
+            let matched = dmm_keyword_matches(&key_name)
+                || display_name.as_deref().is_some_and(dmm_keyword_matches)
+                || publisher.as_deref().is_some_and(dmm_keyword_matches)
+                || path_values.iter().any(|value| dmm_keyword_matches(value));
+
+            if !matched {
+                continue;
+            }
+
+            for value in path_values {
+                for candidate in extract_registry_path_candidates(&value) {
+                    add_dmm_candidate_path(games, candidate);
+                }
+            }
+        }
+    }
+}
+
+#[cfg(windows)]
+fn registry_string_value(key: &winreg::RegKey, name: &str) -> Option<String> {
+    key.get_value::<String, _>(name)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+#[cfg(windows)]
+fn registry_path_values(key: &winreg::RegKey) -> Vec<String> {
+    let mut values = Vec::new();
+    for name in [
+        "InstallLocation",
+        "DisplayIcon",
+        "UninstallString",
+        "QuietUninstallString",
+    ] {
+        let Some(value) = registry_string_value(key, name) else {
+            continue;
+        };
+        values.push(value);
+    }
+    values
+}
+
+fn extract_registry_path_candidates(value: &str) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    let Some(path_text) = clean_registry_path_text(value) else {
+        return paths;
+    };
+
+    push_path_candidate(&mut paths, &path_text);
+
+    let lower = path_text.to_lowercase();
+    if lower.ends_with(".exe") || lower.ends_with(".msi") {
+        push_parent_path_candidate(&mut paths, &path_text);
+    }
+
+    paths
+}
+
+fn clean_registry_path_text(value: &str) -> Option<String> {
+    let value = value.trim().trim_matches('\0').trim();
+    if value.is_empty() {
+        return None;
+    }
+
+    let mut path_text = if let Some(rest) = value.strip_prefix('"') {
+        let Some(end) = rest.find('"') else {
+            return None;
+        };
+        rest[..end].to_string()
+    } else {
+        truncate_registry_command_path(value)
+    };
+
+    if let Some((path, suffix)) = path_text.rsplit_once(',') {
+        if suffix.chars().all(|c| c.is_ascii_digit()) {
+            path_text = path.trim().to_string();
+        }
+    }
+
+    path_text = expand_leading_env_var(path_text.trim());
+    if path_text.is_empty() {
+        None
+    } else {
+        Some(path_text)
+    }
+}
+
+fn truncate_registry_command_path(value: &str) -> String {
+    let lower = value.to_lowercase();
+    for marker in [".exe", ".msi"] {
+        if let Some(index) = lower.find(marker) {
+            return value[..index + marker.len()].trim().to_string();
+        }
+    }
+
+    value.trim().to_string()
+}
+
+fn expand_leading_env_var(path: &str) -> String {
+    let Some(rest) = path.strip_prefix('%') else {
+        return path.to_string();
+    };
+    let Some(end) = rest.find('%') else {
+        return path.to_string();
+    };
+
+    let env_name = &rest[..end];
+    let Ok(value) = std::env::var(env_name) else {
+        return path.to_string();
+    };
+
+    format!("{}{}", value, &rest[end + 1..])
+}
+
+fn scan_common_dmm_paths(games: &mut Vec<DetectedGame>) {
+    for drive in ["C", "D", "E", "F", "G"] {
+        for root_name in ["DMMGames", "dmm", "DMM"] {
+            let root = PathBuf::from(format!(r"{drive}:\{root_name}"));
+            for dir_name in DMM_GAME_DIR_NAMES {
+                add_game_if_new(games, root.join(dir_name), GameVersion::DMM);
+            }
+            scan_game_dirs_under(&root, games, GameVersion::DMM, DMM_SCAN_MAX_DEPTH);
+        }
+    }
+
+    for root in [
+        r"C:\Program Files\DMMGamePlayer",
+        r"C:\Program Files (x86)\DMMGamePlayer",
+        r"C:\Program Files\DMM GAMES",
+        r"C:\Program Files (x86)\DMM GAMES",
+    ] {
+        scan_game_dirs_under(
+            &PathBuf::from(root),
+            games,
+            GameVersion::DMM,
+            DMM_SCAN_MAX_DEPTH,
+        );
+    }
+}
+
+fn add_dmm_candidate_path(games: &mut Vec<DetectedGame>, candidate: PathBuf) {
+    if is_valid_game_dir(&candidate) {
+        add_game_if_new(games, candidate, GameVersion::DMM);
+        return;
+    }
+
+    if candidate.is_file() {
+        if let Some(parent) = candidate.parent() {
+            add_dmm_candidate_path(games, parent.to_path_buf());
+        }
+        return;
+    }
+
+    scan_game_dirs_under(&candidate, games, GameVersion::DMM, DMM_SCAN_MAX_DEPTH);
+}
+
+fn scan_game_dirs_under(
+    root: &Path,
+    games: &mut Vec<DetectedGame>,
+    version: GameVersion,
+    max_depth: usize,
+) {
+    if !root.exists() || !root.is_dir() {
+        return;
+    }
+
+    if is_valid_game_dir(root) {
+        add_game_if_new(games, root.to_path_buf(), version);
+        return;
+    }
+
+    if max_depth == 0 {
+        return;
+    }
+
+    let Ok(entries) = std::fs::read_dir(root) else {
+        return;
+    };
+
+    for entry in entries.filter_map(Result::ok) {
+        let Ok(file_type) = entry.file_type() else {
+            continue;
+        };
+        if !file_type.is_dir() {
+            continue;
+        }
+
+        scan_game_dirs_under(&entry.path(), games, version, max_depth - 1);
+    }
+}
+
+fn push_path_candidate(paths: &mut Vec<PathBuf>, path: &str) {
+    let path = path.trim();
+    if path.is_empty() {
+        return;
+    }
+
+    let candidate = PathBuf::from(path);
+    let normalized = normalize_path_for_compare(&candidate);
+    if paths
+        .iter()
+        .any(|existing| normalize_path_for_compare(existing) == normalized)
+    {
+        return;
+    }
+
+    paths.push(candidate);
+}
+
+fn push_parent_path_candidate(paths: &mut Vec<PathBuf>, path: &str) {
+    let candidate = PathBuf::from(path);
+    if let Some(parent) = candidate.parent() {
+        if !parent.as_os_str().is_empty() {
+            push_path_candidate(paths, &parent.to_string_lossy());
+            return;
+        }
+    }
+
+    if let Some(index) = path.rfind(['\\', '/']) {
+        push_path_candidate(paths, &path[..index]);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{detect_game_version, is_valid_game_dir, GameVersion};
+    use super::{
+        collect_dmm_config_candidates, detect_game_version, extract_registry_path_candidates,
+        is_valid_game_dir, scan_game_dirs_under, DetectedGame, GameVersion,
+    };
     use std::fs;
+    use std::path::PathBuf;
     use tempfile::tempdir;
 
     #[test]
@@ -442,5 +747,57 @@ mod tests {
         fs::write(dir.path().join("umamusume.exe"), []).expect("创建 exe 失败");
 
         assert_eq!(detect_game_version(dir.path()), GameVersion::DMM);
+    }
+
+    #[test]
+    fn collect_dmm_config_candidates_should_read_dmmgameplayer5_paths() {
+        let config = serde_json::json!({
+            "defaultInstallDir": r"C:\dmm",
+            "contents": [
+                {
+                    "productId": "umamusume",
+                    "detail": {
+                        "installed": true,
+                        "path": r"C:\dmm\Umamusume"
+                    }
+                },
+                {
+                    "productId": "other_game",
+                    "detail": {
+                        "installed": true,
+                        "path": r"C:\dmm\OtherGame"
+                    }
+                }
+            ]
+        });
+
+        let paths = collect_dmm_config_candidates(&config);
+
+        assert!(paths.contains(&PathBuf::from(r"C:\dmm")));
+        assert!(paths.contains(&PathBuf::from(r"C:\dmm\Umamusume")));
+        assert!(!paths.contains(&PathBuf::from(r"C:\dmm\OtherGame")));
+    }
+
+    #[test]
+    fn extract_registry_path_candidates_should_parse_display_icon_path() {
+        let paths = extract_registry_path_candidates(r#""C:\dmm\Umamusume\umamusume.exe",0"#);
+
+        assert!(paths.contains(&PathBuf::from(r"C:\dmm\Umamusume\umamusume.exe")));
+        assert!(paths.contains(&PathBuf::from(r"C:\dmm\Umamusume")));
+    }
+
+    #[test]
+    fn scan_game_dirs_under_should_find_nested_dmm_game_dir() {
+        let root = tempdir().expect("创建临时目录失败");
+        let game_dir = root.path().join("launcher").join("games").join("Umamusume");
+        fs::create_dir_all(&game_dir).expect("创建游戏目录失败");
+        fs::write(game_dir.join("umamusume.exe"), []).expect("创建 exe 失败");
+
+        let mut games: Vec<DetectedGame> = Vec::new();
+        scan_game_dirs_under(root.path(), &mut games, GameVersion::DMM, 3);
+
+        assert_eq!(games.len(), 1);
+        assert_eq!(games[0].path, game_dir);
+        assert_eq!(games[0].version, GameVersion::DMM);
     }
 }
