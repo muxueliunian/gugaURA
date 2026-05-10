@@ -2,6 +2,9 @@
 
 use crate::bootstrap::BootstrapStateDto;
 use crate::state::AppState;
+use crate::tool_settings::{
+    AppUpdateCheckDto, ToolSettingsActionResultDto, ToolSettingsContextDto,
+};
 use guga_ura_config_core::config::Config;
 use guga_ura_config_core::detector::{
     detect_game_version, is_valid_game_dir, scan_installed_games as scan_installed_games_core,
@@ -15,7 +18,7 @@ use guga_ura_config_core::receiver_pipeline;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use tauri::State;
+use tauri::{AppHandle, State};
 
 /// 扫描结果 DTO
 #[derive(Debug, Clone, Serialize)]
@@ -196,6 +199,13 @@ pub struct SaveGameSettingsInput {
 pub struct GameSettingsActionResultDto {
     pub context: GameSettingsContextDto,
     pub notice: String,
+}
+
+/// 开机自启保存输入
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetAutostartEnabledInput {
+    pub enabled: bool,
 }
 
 /// 获取启动页基础状态
@@ -403,6 +413,33 @@ pub fn save_game_settings(
         context: build_game_settings_context(Some(resolved_path.as_str())),
         notice: "游戏设置已保存".to_string(),
     })
+}
+
+/// 读取工具设置页上下文
+#[tauri::command]
+pub fn get_tool_settings_context(app: AppHandle) -> Result<ToolSettingsContextDto, String> {
+    crate::tool_settings::get_tool_settings_context(&app, env!("CARGO_PKG_VERSION"))
+}
+
+/// 设置开机自启
+#[tauri::command]
+pub fn set_autostart_enabled(
+    app: AppHandle,
+    input: SetAutostartEnabledInput,
+) -> Result<ToolSettingsActionResultDto, String> {
+    crate::tool_settings::set_autostart_enabled(&app, env!("CARGO_PKG_VERSION"), input.enabled)
+}
+
+/// 检查应用更新
+#[tauri::command]
+pub async fn check_app_update() -> Result<AppUpdateCheckDto, String> {
+    crate::tool_settings::check_app_update(env!("CARGO_PKG_VERSION")).await
+}
+
+/// 打开最新 Release 或下载页面
+#[tauri::command]
+pub fn open_latest_release_page(app: AppHandle, url: Option<String>) -> Result<(), String> {
+    crate::tool_settings::open_latest_release_page(&app, url.as_deref())
 }
 
 fn map_game_version(version: GameVersion) -> (&'static str, &'static str) {

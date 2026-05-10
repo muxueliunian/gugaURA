@@ -31,4 +31,9 @@ export const APP_NAVIGATION_ITEMS: AppNavigationItem[] = [
     title: '游戏设置',
     description: '读取并保存 FPS 与垂直同步设置。',
   },
+  {
+    path: '/tool-settings',
+    title: '工具设置',
+    description: '管理开机自启并检查应用更新。',
+  },
 ];

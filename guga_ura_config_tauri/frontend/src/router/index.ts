@@ -51,6 +51,15 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/tool-settings',
+    name: 'tool-settings',
+    component: () => import('@/features/tool-settings/pages/ToolSettingsPage.vue'),
+    meta: {
+      title: '工具设置',
+      description: '管理开机自启并检查应用更新。',
+    },
+  },
+  {
     path: '/deploy',
     redirect: '/dll-injection',
   },
